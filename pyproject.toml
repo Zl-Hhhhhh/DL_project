@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools==75.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "object-collage"
+version = "0.1.0"
+description = "DSAA 2012: replayable object-aware collage development prototype"
+requires-python = ">=3.10,<3.12"
+dependencies = ["numpy==1.26.4", "Pillow==11.1.0", "opencv-python==4.10.0.84", "ultralytics==8.3.203", "PyYAML==6.0.2"]
+
+[project.scripts]
+object-collage = "object_collage.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+object_collage = ["web_assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

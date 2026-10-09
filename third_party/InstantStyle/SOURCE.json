@@ -1,0 +1,11 @@
+{
+  "directory": "InstantStyle",
+  "repository": "https://github.com/instantX-research/InstantStyle.git",
+  "revision": "6b40588e263c958653353ec24eb7eb990cfa3da7",
+  "patch": "local-changes.patch",
+  "overlay_files": [
+    "LOCAL_ENVIRONMENT.md",
+    "run_controlnet.py",
+    "run_local.py"
+  ]
+}

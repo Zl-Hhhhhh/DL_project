@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>拼贴工作室</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script defer src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">跳到编辑区</a>
+  <header class="topbar">
+    <div class="identity"><span class="brand-mark" aria-hidden="true"><i></i><i></i></span><h1>拼贴工作室<span>Collage studio</span></h1></div>
+    <span class="local-label"><i aria-hidden="true"></i>本地处理</span>
+  </header>
+  <main id="workspace" class="workspace">
+    <aside class="controls" aria-label="图片与样式设置">
+      <section class="control-section"><h2>转换方式</h2><div class="mode-control" role="radiogroup" aria-label="转换方式"><button type="button" role="radio" data-mode="collage" aria-checked="true">拼接</button><button type="button" role="radio" data-mode="stylize" aria-checked="false" tabindex="-1">风格化</button></div></section>
+      <section class="control-section">
+        <h2>输出尺寸</h2>
+        <div class="material-source-control size-control" role="radiogroup" aria-label="输出尺寸">
+          <button type="button" role="radio" data-size="512" aria-checked="false" tabindex="-1">512 × 512</button>
+          <button type="button" role="radio" data-size="1024" aria-checked="true">1024 × 1024</button>
+        </div>
+      </section>
+      <section class="control-section">
+        <h2><span class="step">01</span>原图</h2>
+        <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="上传图片" hidden>
+        <button class="dropzone" id="upload-button" type="button">
+          <span class="upload-empty" id="upload-empty">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V3m-4 4 4-4 4 4M4 15v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5"/></svg>
+            <strong>点击上传，或拖入图片</strong>
+            <span>JPG、PNG、WebP · 最大 12 MB</span>
+          </span>
+          <span class="upload-selected" id="upload-selected" hidden><img id="input-thumb" alt="已上传图片" width="62" height="62"><span><strong id="file-name"></strong><span id="file-info"></span><span class="replace-label">点击更换图片</span></span></span>
+        </button>
+        <button class="text-button sample-button" id="sample-button" type="button">没有合适的照片？试用示例图 <span aria-hidden="true">↗</span></button>
+        <div class="detection-controls">
+          <label class="detection-toggle"><input id="show-boxes" type="checkbox">显示识别框</label>
+          <div id="threshold-control" hidden><label for="confidence-threshold">置信度阈值 <output id="threshold-value" for="confidence-threshold">50%</output></label><input id="confidence-threshold" type="range" min="1" max="100" value="50" step="1" aria-label="置信度阈值"></div>
+        </div>
+      </section>
+      <section class="control-section" id="collage-effects">
+        <h2>处理效果</h2>
+        <div class="effect-control" role="radiogroup" aria-label="拼接效果">
+          <button type="button" role="radio" data-effect="existing" aria-checked="true">原图拼接</button>
+          <button type="button" role="radio" data-effect="color_focus" aria-checked="false" tabindex="-1">主体保色</button>
+          <button type="button" role="radio" data-effect="poster" aria-checked="false" tabindex="-1">纯色拼贴</button>
+        </div>
+        <p class="field-note" id="effect-note">移动主体，只填色遮盖主体原来的位置。</p>
+        <div id="color-focus-controls" hidden>
+          <label class="range-label" for="background-saturation">背景饱和度<output id="background-saturation-value">15%</output></label>
+          <input class="strength-slider" id="background-saturation" type="range" min="0" max="100" value="15" step="5">
+          <p class="field-note">0% 为灰度背景，100% 保持原图颜色。主体位置和颜色不变。</p>
+        </div>
+        <div id="poster-controls" hidden>
+          <label class="range-label" for="subject-size">主体大小<output id="subject-size-value">55%</output></label>
+          <input class="strength-slider" id="subject-size" type="range" min="30" max="60" value="55" step="1">
+          <p class="field-note">主体最长边占画布的比例，调小可增加留白。</p>
+          <div class="poster-position-control" role="radiogroup" aria-label="纯色拼贴构图">
+            <button type="button" role="radio" data-poster-position="top_left" aria-checked="false" tabindex="-1">左上三分</button>
+            <button type="button" role="radio" data-poster-position="top_right" aria-checked="false" tabindex="-1">右上三分</button>
+            <button type="button" role="radio" data-poster-position="center" aria-checked="true">居中</button>
+            <button type="button" role="radio" data-poster-position="bottom_left" aria-checked="false" tabindex="-1">左下三分</button>
+            <button type="button" role="radio" data-poster-position="bottom_right" aria-checked="false" tabindex="-1">右下三分</button>
+          </div>
+        </div>
+      </section>
+      <section class="control-section" id="collage-styles">
+        <h2><span class="step">02</span>选择样式<span class="small-label">主体配色</span></h2>
+        <div class="style-grid" id="styles" role="radiogroup" aria-label="生成样式"></div>
+      </section>
+      <section class="control-section" id="stylize-controls" hidden>
+        <h2><span class="step">02</span>风格图</h2>
+        <input id="style-file-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="上传风格图" hidden>
+        <button id="style-upload-button" class="dropzone" type="button"><span id="style-empty" class="upload-empty"><strong>点击上传，或拖入风格图</strong><span>JPG、PNG、WebP · 最大 12 MB</span></span><span id="style-selected" class="upload-selected" hidden><img id="style-thumb" alt="风格参考图" width="62" height="62"><span><strong id="style-name"></strong><span class="replace-label">点击更换风格图</span></span></span></button>
+        <label class="field-label" for="style-prompt">画面描述（可选）</label><input id="style-prompt" class="text-input" type="text" maxlength="500" placeholder="例如 a cat in a garden">
+        <label class="range-label" for="style-strength">风格强度<output id="style-strength-value">100%</output></label><input id="style-strength" class="strength-slider" type="range" min="0" max="150" value="100" step="5">
+        <label class="range-label" for="structure-strength">结构保持强度<output id="structure-strength-value">80%</output></label><input id="structure-strength" class="strength-slider" type="range" min="0" max="150" value="80" step="5">
+      </section>
+      <section class="control-section composition-section">
+        <h2><span class="step">03</span>选择构图</h2>
+        <div class="composition-control" role="radiogroup" aria-label="主体位置">
+          <button type="button" role="radio" aria-checked="false" data-composition="left"><span class="position-icon pos-left" aria-hidden="true"><i></i></span>靠左</button>
+          <button type="button" role="radio" aria-checked="true" data-composition="center"><span class="position-icon pos-center" aria-hidden="true"><i></i></span>居中</button>
+          <button type="button" role="radio" aria-checked="false" data-composition="right"><span class="position-icon pos-right" aria-hidden="true"><i></i></span>靠右</button>
+        </div>
+      </section>
+      <section class="control-section postprocess-section">
+        <h2>可选后处理</h2>
+        <label class="detection-toggle"><input id="enable-collagerl" type="checkbox">CollageRL 材质重构</label>
+        <div id="materials-panel" hidden>
+          <p class="field-note">在转换完成后，用这些素材重新拼贴整张图片。</p>
+          <div class="material-source-control" role="radiogroup" aria-label="素材来源">
+            <button type="button" role="radio" aria-checked="true" data-material-source="builtin">使用内置素材</button>
+            <button type="button" role="radio" aria-checked="false" tabindex="-1" data-material-source="custom">自定义上传</button>
+          </div>
+          <div id="builtin-materials-panel">
+            <p class="field-note" id="builtin-materials-note">正在读取内置素材库</p>
+            <img id="builtin-materials-preview" class="builtin-materials-preview" alt="内置报纸和杂志素材预览" hidden>
+            <p class="material-credit">CollageRL 官方推荐 · <a href="https://archive.ics.uci.edu/dataset/306/newspaper+and+magazine+images+segmentation+dataset" target="_blank" rel="noopener noreferrer">UCI 报纸与杂志素材</a><br>Vilkin &amp; Safonov · CC BY 4.0</p>
+          </div>
+          <div id="custom-materials-panel" hidden>
+            <input id="materials-input" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label="上传 CollageRL 素材">
+            <button id="materials-button" type="button" class="materials-button">上传素材图片</button>
+            <p class="field-note" id="materials-note">1–8 张，每张不超过 4 MB</p>
+            <div id="materials-thumbs" class="materials-thumbs"></div>
+          </div>
+        </div>
+      </section>
+      <div class="action-area">
+        <button class="generate-button" id="generate-button" type="button" disabled><span id="generate-label">开始拼接</span><span class="generate-arrow" aria-hidden="true">↗</span><span class="spinner" id="button-spinner" hidden></span></button>
+        <p class="processing-note">图片在这台电脑上处理</p>
+        <div class="error-box" id="error-box" role="alert" hidden><p id="error-message"></p><button type="button" id="truncated-retry" hidden>使用当前可见主体继续</button></div>
+      </div>
+    </aside>
+    <section class="preview-area" aria-label="图片预览">
+      <div class="preview-toolbar"><div><h2 id="preview-title">画布预览</h2><p id="preview-description">上传一张照片，开始创作</p></div><div class="view-toggle" id="view-toggle" hidden><button id="view-original" type="button" aria-pressed="false">原图</button><button id="view-result" type="button" aria-pressed="true">生成结果</button></div></div>
+      <div class="artboard-surround">
+        <div class="artboard" id="artboard" aria-busy="false">
+          <div class="canvas-empty" id="canvas-empty"><span class="empty-frame" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></svg></span><h3>让主体，成为画面主角</h3><p>选好图片和样式，拼贴将在这里呈现</p></div>
+          <img id="preview-image" alt="图片预览" width="1024" height="1024" hidden>
+          <svg id="detection-boxes" viewBox="0 0 1024 1024" aria-hidden="true" hidden></svg>
+          <div class="generating-overlay" id="generating-overlay" hidden><span class="spinner large" aria-hidden="true"></span><p id="generation-stage">正在准备图片</p></div>
+        </div>
+      </div>
+      <footer class="preview-footer"><span class="canvas-meta"><b id="canvas-dimensions">1024 × 1024</b> <span>PNG</span></span><p id="result-status" role="status" aria-live="polite">等待上传</p><a id="download-button" class="download-button" download="collage.png" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/></svg>下载图片</a></footer>
+    </section>
+  </main>
+</body>
+</html>

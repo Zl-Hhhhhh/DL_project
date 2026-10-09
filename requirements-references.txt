@@ -1,0 +1,14 @@
+# Additional packages for CollageRL and InstantStyle in the root Python 3.10 venv.
+# Install with constraints from requirements-lock.txt to preserve the main app.
+kornia==0.6.8
+imutils==0.5.4
+albumentations==1.1.0
+opencv-python-headless==4.10.0.84
+gym==0.17.3
+wandb==0.13.3
+diffusers==0.29.2
+transformers==4.44.2
+accelerate==0.34.2
+huggingface-hub==0.25.2
+safetensors==0.4.5
+einops==0.8.0

@@ -1,0 +1,39 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.terminal.activateEnvironment": true,
+    "terminal.integrated.env.windows": {
+        "VIRTUAL_ENV": "${workspaceFolder}\\.venv",
+        "PATH": "${workspaceFolder}\\.venv\\Scripts;${env:PATH}",
+        "PYTHONUTF8": "1"
+    },
+    "latex-workshop.latex.tools": [
+        {
+            "name": "tectonic-project",
+            "command": "D:/mystudy/DSAA2012/project/.cache/latex-tools/tectonic/tectonic.exe",
+            "args": [
+                "--untrusted",
+                "--synctex",
+                "--keep-logs",
+                "--keep-intermediates",
+                "--outdir",
+                "%OUTDIR%",
+                "%DOC_EXT%"
+            ],
+            "env": {
+                "TECTONIC_CACHE_DIR": "%WORKSPACE_FOLDER%/.cache/latex-tools/tectonic-cache"
+            }
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "Tectonic (project)",
+            "tools": [
+                "tectonic-project"
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipe.default": "first",
+    "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/output/pdf",
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.view.pdf.viewer": "tab"
+}

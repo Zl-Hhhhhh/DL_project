@@ -1,0 +1,15 @@
+diff --git a/ip_adapter/ip_adapter.py b/ip_adapter/ip_adapter.py
+index 329a8e6..999c683 100644
+--- a/ip_adapter/ip_adapter.py
++++ b/ip_adapter/ip_adapter.py
+@@ -75,7 +75,9 @@ class IPAdapter:
+         self.set_ip_adapter()
+ 
+         # load image encoder
+-        self.image_encoder = CLIPVisionModelWithProjection.from_pretrained(self.image_encoder_path).to(
++        self.image_encoder = CLIPVisionModelWithProjection.from_pretrained(
++            self.image_encoder_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
++        ).to(
+             self.device, dtype=torch.float16
+         )
+         self.clip_image_processor = CLIPImageProcessor()

@@ -1,0 +1,182 @@
+diff --git a/src/models/Sampler.py b/src/models/Sampler.py
+index 57eebcb..be762ed 100644
+--- a/src/models/Sampler.py
++++ b/src/models/Sampler.py
+@@ -3,7 +3,6 @@ from diffusers import StableDiffusionPipeline
+ from typing import Any, Callable, Dict, List, Optional, Union
+ import torch.nn.functional as F
+ import torch
+-from basicsr.utils import img2tensor
+ from tqdm import tqdm
+ import torch.nn as nn
+ import copy
+@@ -38,12 +37,12 @@ class Sampler(StableDiffusionPipeline):
+             truncation=True,
+             return_tensors="pt",
+         )
+-        text_embeddings = self.text_encoder(text_input.input_ids.to(self.device))[0]
++        text_embeddings = self.text_encoder(text_input.input_ids.to(self.text_encoder.device))[0]
+         max_length = text_input.input_ids.shape[-1]
+         uncond_input = self.tokenizer(
+                 [""], padding="max_length", max_length=max_length, return_tensors="pt"
+             )
+-        uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.device))[0]
++        uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.text_encoder.device))[0]
+         # image prompt
+         if emb_im is not None and emb_im_uncond is not None:
+             uncond_embeddings = torch.cat([uncond_embeddings, emb_im_uncond],dim=1)
+@@ -485,4 +484,4 @@ class Sampler(StableDiffusionPipeline):
+         guidance = cond_grad_con.detach()*(1-mask)*4e-2 + cond_grad_edit.detach()*mask*4e-2
+         self.estimator.zero_grad()
+ 
+-        return guidance
+\ No newline at end of file
++        return guidance
+diff --git a/src/models/dragondiff.py b/src/models/dragondiff.py
+index 2ba853b..427af07 100644
+--- a/src/models/dragondiff.py
++++ b/src/models/dragondiff.py
+@@ -7,7 +7,7 @@ from src.unet.estimator import MyUNet2DConditionModel
+ from diffusers import DDIMScheduler
+ import gc
+ from PIL import Image
+-from basicsr.utils import tensor2img
++from src.utils.image_conversion import tensor2img
+ from diffusers import AutoencoderKL
+ from transformers import CLIPTextModel, CLIPTokenizer
+ from src.utils.inversion import DDIMInversion
+@@ -109,4 +109,4 @@ class DragonPipeline:
+         state_dict = torch.load(model_path, map_location="cpu")
+         self.image_proj_model.load_state_dict(state_dict["image_proj"], strict=True)
+         ip_layers = torch.nn.ModuleList(self.pipe.unet.attn_processors.values())
+-        ip_layers.load_state_dict(state_dict["ip_adapter"], strict=True)
+\ No newline at end of file
++        ip_layers.load_state_dict(state_dict["ip_adapter"], strict=True)
+diff --git a/src/unet/attention_2d.py b/src/unet/attention_2d.py
+index 78b9b01..aad70b8 100644
+--- a/src/unet/attention_2d.py
++++ b/src/unet/attention_2d.py
+@@ -11,12 +11,11 @@ from diffusers.configuration_utils import ConfigMixin, register_to_config
+ from diffusers.models.modeling_utils import ModelMixin
+ from diffusers.utils import BaseOutput
+ from diffusers.utils.import_utils import is_xformers_available
+-from diffusers.models.cross_attention import CrossAttention
++from diffusers.models.attention_processor import Attention as CrossAttention
+ from diffusers.models.attention import FeedForward, AdaLayerNorm
+ 
+ from einops import rearrange, repeat
+ import cv2
+-from basicsr.utils import img2tensor, tensor2img
+ import os
+ import math
+ import numpy as np
+diff --git a/src/unet/attention_processor.py b/src/unet/attention_processor.py
+index bd5d0a2..da6e975 100644
+--- a/src/unet/attention_processor.py
++++ b/src/unet/attention_processor.py
+@@ -2,13 +2,10 @@
+ import torch
+ import torch.nn as nn
+ import torch.nn.functional as F
+-import xformers
+-import xformers.ops
+ import numpy as np
+ import math
+ 
+ import cv2
+-from basicsr.utils import img2tensor, tensor2img
+ 
+ 
+ class AttnProcessor(nn.Module):
+@@ -113,9 +110,12 @@ class AttnProcessor(nn.Module):
+                 target_length = query.shape[1]
+                 attention_mask = F.pad(attention_mask, (0, target_length), value=0.0)
+                 attention_mask = attention_mask.repeat_interleave(attn.heads, dim=0)
+-        hidden_states = xformers.ops.memory_efficient_attention(
+-            query, key, value, attn_bias=attention_mask
+-        )
++        # Use PyTorch's fused SDPA, preserving the original memory-bank Q/K/V.
++        hidden_states = F.scaled_dot_product_attention(
++            query.unsqueeze(1), key.unsqueeze(1), value.unsqueeze(1),
++            attn_mask=attention_mask.unsqueeze(1) if attention_mask is not None else None,
++            dropout_p=0.0,
++        ).squeeze(1)
+         # Some versions of xformers return output in fp32, cast it back to the dtype of the input
+         hidden_states = hidden_states.to(query.dtype)
+ 
+@@ -347,4 +347,4 @@ class Resampler(nn.Module):
+             latents = ff(latents) + latents
+             
+         latents = self.proj_out(latents)
+-        return self.norm_out(latents)
+\ No newline at end of file
++        return self.norm_out(latents)
+diff --git a/src/unet/estimator.py b/src/unet/estimator.py
+index b6bd98d..6226fdd 100644
+--- a/src/unet/estimator.py
++++ b/src/unet/estimator.py
+@@ -1,4 +1,4 @@
+-from diffusers.models.unet_2d_condition import UNet2DConditionModel
++from diffusers.models.unets.unet_2d_condition import UNet2DConditionModel
+ from typing import Any, Dict, Optional, Union
+ import torch
+ import numpy as np
+@@ -149,4 +149,4 @@ class MyUNet2DConditionModel(UNet2DConditionModel):
+             
+         output = {}
+         output['up_ft'] = up_ft
+-        return output
+\ No newline at end of file
++        return output
+diff --git a/src/unet/unet_2d_condition.py b/src/unet/unet_2d_condition.py
+index f2cec7c..3ac4108 100644
+--- a/src/unet/unet_2d_condition.py
++++ b/src/unet/unet_2d_condition.py
+@@ -22,7 +22,7 @@ from .unet_2d_blocks import (
+     get_up_block,
+ )
+ from .resnet_2d import InflatedConv3d
+-from diffusers.models.unet_2d_condition import UNet2DConditionModel
++from diffusers.models.unets.unet_2d_condition import UNet2DConditionModel
+ 
+ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
+ 
+diff --git a/src/utils/inversion.py b/src/utils/inversion.py
+index 12a2ad4..008a360 100644
+--- a/src/utils/inversion.py
++++ b/src/utils/inversion.py
+@@ -35,7 +35,7 @@ class DDIMInversion:
+             truncation=True,
+             return_tensors="pt",
+         )
+-        text_embeddings = self.model.text_encoder(text_input.input_ids.to(self.model.device))[0]
++        text_embeddings = self.model.text_encoder(text_input.input_ids.to(self.model.text_encoder.device))[0]
+         if emb_im is not None:
+             self.text_embeddings = torch.cat([text_embeddings, emb_im],dim=1)
+         else:
+@@ -64,4 +64,4 @@ class DDIMInversion:
+     def invert(self, ddim_latents, prompt: str, emb_im=None):
+         self.init_prompt(prompt, emb_im=emb_im)
+         ddim_latents = self.ddim_loop(ddim_latents)
+-        return ddim_latents
+\ No newline at end of file
++        return ddim_latents
+diff --git a/src/utils/utils.py b/src/utils/utils.py
+index b127a81..383863e 100644
+--- a/src/utils/utils.py
++++ b/src/utils/utils.py
+@@ -1,6 +1,6 @@
+ import numpy as np
+ import cv2
+-from basicsr.utils import img2tensor
++from src.utils.image_conversion import img2tensor
+ import torch
+ import torch.nn.functional as F
+ 
+@@ -237,4 +237,4 @@ def process_paste(path_mask, h, w, dx, dy, scale, input_scale, up_scale, up_ft_i
+         "w_content":w_content,
+         "w_edit":w_edit,
+         "w_content":w_content,
+-    }
+\ No newline at end of file
++    }

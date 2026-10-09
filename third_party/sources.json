@@ -1,0 +1,35 @@
+[
+  {
+    "directory": "CollageRL",
+    "repository": "https://github.com/northadventure/CollageRL.git",
+    "revision": "ac9b066a398f3f352783d14cfb65332258de73a2",
+    "patch": "local-changes.patch",
+    "overlay_files": [
+      "ENVIRONMENT.md",
+      "infer.ps1",
+      "requirements-windows.txt",
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "directory": "InstantStyle",
+    "repository": "https://github.com/instantX-research/InstantStyle.git",
+    "revision": "6b40588e263c958653353ec24eb7eb990cfa3da7",
+    "patch": "local-changes.patch",
+    "overlay_files": [
+      "LOCAL_ENVIRONMENT.md",
+      "run_controlnet.py",
+      "run_local.py"
+    ]
+  },
+  {
+    "directory": "DragonDiffusion",
+    "repository": "https://github.com/MC-E/DragonDiffusion.git",
+    "revision": "f9b5bdffcedfbc6337af258e64e40f3a5a836a88",
+    "patch": "local-changes.patch",
+    "overlay_files": [
+      "run_local.py",
+      "src/utils/image_conversion.py"
+    ]
+  }
+]

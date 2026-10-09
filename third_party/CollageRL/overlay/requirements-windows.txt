@@ -1,0 +1,20 @@
+# Python 3.10, Windows x64, NVIDIA GPU (CUDA runtime is included in torch).
+# Keep the original requirements.txt for reproducing the paper's environment.
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.0.1+cu118
+torchvision==0.15.2+cu118
+numpy==1.23.5
+matplotlib==3.7.2
+scipy==1.8.0
+wandb==0.13.3
+opencv-python==4.8.0.74
+opencv-python-headless==4.8.0.74
+kornia==0.6.8
+imutils==0.5.4
+albumentations==1.1.0
+tqdm==4.65.0
+gym==0.17.3
+# Legacy Gym setup.py needs the older packaging toolchain.
+setuptools==65.5.0
+wheel==0.38.4
+pip==24.0

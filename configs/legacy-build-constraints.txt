@@ -1,0 +1,3 @@
+# Legacy Gym uses metadata rejected by current wheel/setuptools.
+setuptools==65.5.0
+wheel==0.38.4

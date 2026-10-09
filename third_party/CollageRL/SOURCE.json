@@ -1,0 +1,12 @@
+{
+  "directory": "CollageRL",
+  "repository": "https://github.com/northadventure/CollageRL.git",
+  "revision": "ac9b066a398f3f352783d14cfb65332258de73a2",
+  "patch": "local-changes.patch",
+  "overlay_files": [
+    "ENVIRONMENT.md",
+    "infer.ps1",
+    "requirements-windows.txt",
+    ".vscode/settings.json"
+  ]
+}

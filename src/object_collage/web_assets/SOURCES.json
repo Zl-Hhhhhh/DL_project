@@ -1,0 +1,31 @@
+{
+  "sample": {
+    "image_id": 283835,
+    "annotation_id": 442148,
+    "category": "person",
+    "bbox_xywh": [
+      96.62,
+      29.24,
+      374.37,
+      456.74
+    ],
+    "area_fraction": 0.16892965882490638,
+    "annotation_touches_border": false,
+    "source_id": "coco_train2017_000000283835",
+    "split": "dev",
+    "path": "data/dev/images/000000283835.jpg",
+    "sha256": "2c803bc23a1427253b1d75f95f03f1301dff76ddb45a92d19356260b907e2bdd",
+    "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000283835.jpg",
+    "flickr_url": "http://farm1.staticflickr.com/185/471261198_e63303b142_z.jpg",
+    "license": {
+      "url": "http://creativecommons.org/licenses/by-nd/2.0/",
+      "id": 6,
+      "name": "Attribution-NoDerivs License"
+    },
+    "width": 640,
+    "height": 534,
+    "group": "person",
+    "composition": "center"
+  },
+  "previews": "Generated locally using the saved automatic mask, original or duotone subject colors, and the source_masked background renderer."
+}

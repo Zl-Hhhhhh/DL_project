@@ -1,0 +1,50 @@
+\documentclass{article}
+\PassOptionsToPackage{numbers,sort&compress}{natbib}
+\usepackage[preprint]{neurips_2026}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+% Replace the two rules below with your name and student ID before submission.
+\newcommand{\AuthorName}{\rule{2cm}{0.35pt}}
+\newcommand{\StudentID}{\rule{2cm}{0.35pt}}
+\title{Object-Aware Preference Learning\\for Controllable Image Collage}
+\author{Name: \AuthorName\quad Student ID: \StudentID}
+\hypersetup{pdftitle={Object-Aware Preference Learning for Controllable Image Collage},pdfsubject={DSAA 2012 Project Proposal}}
+
+\begin{document}
+\maketitle
+\section{Motivation and Research Questions}
+This project studies goal-conditioned preference ranking among edits of the same source. Building on collage reconstruction \citep{lee2023collage} and attribute-based aesthetic assessment \citep{celona2022composition}, I will test \textbf{whether subject correspondence improves global-feature ranking and whether geometric/color features improve label efficiency}.
+
+\section{Proposed Method}
+Existing segmentation/rendering will generate eight poster candidates per source, varying position, scale, spacing, and color under a fixed brief. Frozen DINOv2 \citep{oquab2023dinov2} will encode global source/candidate images and neutral-background subject crops. A small MLP will combine embeddings, goal conditions, and position/area/color-contrast features. I will train only this head using pairwise logistic loss and cache encoder features.
+
+\section{Experimental Plan}
+I plan 120 new sources, split 80/20/20 for training/validation/testing by source and near-duplicate group, excluding development images. Eight randomized pair judgments per source will record author preferences, ties, and repeated-label consistency.
+
+Shared candidate pools will support random and fixed-rule baselines, a global-feature MLP, and ablations adding subject features, design features, or both. Omitted input blocks will be zeroed in an otherwise identical architecture. Training budgets of 2/4/8 pairs per image will test label efficiency. Metrics include held-out non-tied pairwise agreement, tie rates, blind top-choice comparisons, and source-bootstrap confidence intervals. Three seeds and segmentation/category failure analyses will assess variability.
+
+\section{Feasibility and Expected Outcomes}
+Eight of 12 development images passed segmentation/geometric checks, yielding 64 replay-verified candidates; ranking and preference evaluation remain pending. Expected outcomes include representation/label-efficiency analyses, negative findings, and single-annotator limitations. Data, training/ablations, and writing are scheduled for October, November, and early December.
+
+{\small
+\begin{thebibliography}{3}
+\setlength{\bibsep}{0pt}
+\bibitem{lee2023collage}
+G. Lee et al.
+\href{https://openaccess.thecvf.com/content/ICCV2023/html/Lee_Neural_Collage_Transfer_Artistic_Reconstruction_via_Material_Manipulation_ICCV_2023_paper.html}{Neural Collage Transfer: Artistic Reconstruction via Material Manipulation}.
+\emph{ICCV}, pp. 2394-2405, 2023.
+\bibitem{celona2022composition}
+L. Celona et al.
+\href{https://arxiv.org/abs/2111.04647}{Composition and Style Attributes Guided Image Aesthetic Assessment}.
+\emph{IEEE Transactions on Image Processing}, 31:5009-5024, 2022.
+\bibitem{oquab2023dinov2}
+M. Oquab et al.
+\href{https://arxiv.org/abs/2304.07193}{DINOv2: Learning Robust Visual Features without Supervision}.
+\emph{arXiv:2304.07193}, 2023.
+\end{thebibliography}
+}
+\end{document}

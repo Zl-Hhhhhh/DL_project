@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "split": "dev",
+  "seed": 2012,
+  "dataset": "COCO train2017",
+  "source": "https://cocodataset.org/#download",
+  "annotation_url": "https://s3.amazonaws.com/images.cocodataset.org/annotations/annotations_trainval2017.zip",
+  "annotation_sha256": "113a836d90195ee1f884e704da6304dfaaecff1f023f49b6ca93c4aaae470268",
+  "selection": "Fixed category slots; seeded shuffle of non-crowd instances with area fraction 0.12–0.65 and bbox sides >=100 px; 11 interior and 1 border case. Frozen before segmentation. No quality-based replacement.",
+  "excluded_annotation_counts": {
+    "small_or_overlarge_subject": 772693,
+    "crowd": 10052
+  },
+  "restrictions": [
+    "Development only; exclude these source IDs and near duplicates from formal train/val/test and photography sets.",
+    "COCO-pretrained models may have seen these images."
+  ],
+  "images": [
+    {
+      "image_id": 283835,
+      "annotation_id": 442148,
+      "category": "person",
+      "bbox_xywh": [
+        96.62,
+        29.24,
+        374.37,
+        456.74
+      ],
+      "area_fraction": 0.16892965882490638,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000283835",
+      "split": "dev",
+      "path": "data/dev/images/000000283835.jpg",
+      "sha256": "2c803bc23a1427253b1d75f95f03f1301dff76ddb45a92d19356260b907e2bdd",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000283835.jpg",
+      "flickr_url": "http://farm1.staticflickr.com/185/471261198_e63303b142_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nd/2.0/",
+        "id": 6,
+        "name": "Attribution-NoDerivs License"
+      },
+      "width": 640,
+      "height": 534,
+      "group": "person",
+      "composition": "center"
+    },
+    {
+      "image_id": 450455,
+      "annotation_id": 188782,
+      "category": "person",
+      "bbox_xywh": [
+        259.57,
+        42.35,
+        281.2,
+        432.62
+      ],
+      "area_fraction": 0.16550468847656252,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000450455",
+      "split": "dev",
+      "path": "data/dev/images/000000450455.jpg",
+      "sha256": "e275fc8e3f55d3bf8a163c86b006b634847e1550b533a07732467aa38f452047",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000450455.jpg",
+      "flickr_url": "http://farm2.staticflickr.com/1100/771339040_078158dd38_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "width": 640,
+      "height": 480,
+      "group": "person",
+      "composition": "left"
+    },
+    {
+      "image_id": 315899,
+      "annotation_id": 433725,
+      "category": "person",
+      "bbox_xywh": [
+        61.57,
+        101.18,
+        325.01,
+        531.18
+      ],
+      "area_fraction": 0.3736190102332745,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000315899",
+      "split": "dev",
+      "path": "data/dev/images/000000315899.jpg",
+      "sha256": "ef6666b3d6c3c5a5d300eef5502df58f23758a101d1227b3b1b75888feea0264",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000315899.jpg",
+      "flickr_url": "http://farm4.staticflickr.com/3043/2808133363_d8507e7f7b_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/",
+        "id": 2,
+        "name": "Attribution-NonCommercial License"
+      },
+      "width": 426,
+      "height": 640,
+      "group": "person",
+      "composition": "right"
+    },
+    {
+      "image_id": 218399,
+      "annotation_id": 1734755,
+      "category": "person",
+      "bbox_xywh": [
+        116.49,
+        247.37,
+        155.33,
+        385.44
+      ],
+      "area_fraction": 0.13006524041276343,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000218399",
+      "split": "dev",
+      "path": "data/dev/images/000000218399.jpg",
+      "sha256": "9b94f70b2ad0996c98b33208b1b6eedfcb16247c58985b4a55ef1b445f7b197a",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000218399.jpg",
+      "flickr_url": "http://farm3.staticflickr.com/2565/4000765804_977e62ff21_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/",
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License"
+      },
+      "width": 427,
+      "height": 640,
+      "group": "person",
+      "composition": "center"
+    },
+    {
+      "image_id": 315663,
+      "annotation_id": 51685,
+      "category": "cat",
+      "bbox_xywh": [
+        23.51,
+        100.92,
+        489.89,
+        161.66
+      ],
+      "area_fraction": 0.20916128046158258,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000315663",
+      "split": "dev",
+      "path": "data/dev/images/000000315663.jpg",
+      "sha256": "f343df06e7bef6d264cedd63ae2d60e0f73d65058a3d063fb8bfa3d07be9f3c0",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000315663.jpg",
+      "flickr_url": "http://farm3.staticflickr.com/2569/3753468661_b0af1d730f_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/",
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License"
+      },
+      "width": 640,
+      "height": 436,
+      "group": "animal",
+      "composition": "left"
+    },
+    {
+      "image_id": 311961,
+      "annotation_id": 6381,
+      "category": "dog",
+      "bbox_xywh": [
+        73.89,
+        25.75,
+        347.37,
+        305.15
+      ],
+      "area_fraction": 0.1391873300986842,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000311961",
+      "split": "dev",
+      "path": "data/dev/images/000000311961.jpg",
+      "sha256": "c045722023fa4b964790d7ee6805dfc768442ba97581e0bc803dd486f8493089",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000311961.jpg",
+      "flickr_url": "http://farm9.staticflickr.com/8308/7853587890_e020018638_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/",
+        "id": 2,
+        "name": "Attribution-NonCommercial License"
+      },
+      "width": 640,
+      "height": 475,
+      "group": "animal",
+      "composition": "right"
+    },
+    {
+      "image_id": 310269,
+      "annotation_id": 37098,
+      "category": "bird",
+      "bbox_xywh": [
+        48.49,
+        74.26,
+        277.38,
+        253.14
+      ],
+      "area_fraction": 0.1435392384384384,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000310269",
+      "split": "dev",
+      "path": "data/dev/images/000000310269.jpg",
+      "sha256": "e7a518bb945bc87248f22d23e314ff2aa123c951f581a1bc070723848c6b958a",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000310269.jpg",
+      "flickr_url": "http://farm4.staticflickr.com/3050/2360201376_ac1a6451d6_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/",
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License"
+      },
+      "width": 500,
+      "height": 333,
+      "group": "animal",
+      "composition": "center"
+    },
+    {
+      "image_id": 332587,
+      "annotation_id": 55125,
+      "category": "horse",
+      "bbox_xywh": [
+        81.56,
+        7.6,
+        528.03,
+        625.14
+      ],
+      "area_fraction": 0.35866000621025423,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000332587",
+      "split": "dev",
+      "path": "data/dev/images/000000332587.jpg",
+      "sha256": "f16ac96a58ce27c5334ef4b5598f84046e67ae48390e205e44660e53bde90972",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000332587.jpg",
+      "flickr_url": "http://farm9.staticflickr.com/8271/8699579706_646034c7be_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "width": 629,
+      "height": 640,
+      "group": "animal",
+      "composition": "left"
+    },
+    {
+      "image_id": 502564,
+      "annotation_id": 384827,
+      "category": "chair",
+      "bbox_xywh": [
+        425.11,
+        135.32,
+        201.02,
+        274.11
+      ],
+      "area_fraction": 0.1439854495838201,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000502564",
+      "split": "dev",
+      "path": "data/dev/images/000000502564.jpg",
+      "sha256": "75dcd6ffdebcd8e81dacb2479182fd50e838ad78acfbe2f880a4127f4c2a4213",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000502564.jpg",
+      "flickr_url": "http://farm7.staticflickr.com/6162/6176364709_36437688a3_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/",
+        "id": 2,
+        "name": "Attribution-NonCommercial License"
+      },
+      "width": 640,
+      "height": 428,
+      "group": "object",
+      "composition": "right"
+    },
+    {
+      "image_id": 308208,
+      "annotation_id": 670110,
+      "category": "cup",
+      "bbox_xywh": [
+        326.83,
+        92.43,
+        306.34,
+        355.96
+      ],
+      "area_fraction": 0.24681133642578124,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000308208",
+      "split": "dev",
+      "path": "data/dev/images/000000308208.jpg",
+      "sha256": "4323a064069456601f84d7db705c6d9dd2352805388aff748211fc1e82926792",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000308208.jpg",
+      "flickr_url": "http://farm4.staticflickr.com/3143/2785369208_1f1e5b7dac_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc/2.0/",
+        "id": 2,
+        "name": "Attribution-NonCommercial License"
+      },
+      "width": 640,
+      "height": 480,
+      "group": "object",
+      "composition": "center"
+    },
+    {
+      "image_id": 494870,
+      "annotation_id": 20577,
+      "category": "potted plant",
+      "bbox_xywh": [
+        181.21,
+        20.16,
+        384.0,
+        398.03
+      ],
+      "area_fraction": 0.27027961653645843,
+      "annotation_touches_border": false,
+      "source_id": "coco_train2017_000000494870",
+      "split": "dev",
+      "path": "data/dev/images/000000494870.jpg",
+      "sha256": "34b8d1ce8890b3e2f6811a4bbff8c8073264823e402ba7e01d8d9cff6f498b4b",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000494870.jpg",
+      "flickr_url": "http://farm3.staticflickr.com/2506/3710006732_9787b5d12b_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/",
+        "id": 1,
+        "name": "Attribution-NonCommercial-ShareAlike License"
+      },
+      "width": 640,
+      "height": 480,
+      "group": "object",
+      "composition": "left"
+    },
+    {
+      "image_id": 423173,
+      "annotation_id": 1159318,
+      "category": "teddy bear",
+      "bbox_xywh": [
+        0.79,
+        85.48,
+        185.48,
+        398.86
+      ],
+      "area_fraction": 0.1381650454015899,
+      "annotation_touches_border": true,
+      "source_id": "coco_train2017_000000423173",
+      "split": "dev",
+      "path": "data/dev/images/000000423173.jpg",
+      "sha256": "d961907b19d9b6b7408598f42d720bc1cf6a0dfa9f55102ff4fe6eb30a56b56f",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/train2017/000000423173.jpg",
+      "flickr_url": "http://farm7.staticflickr.com/6168/6267600349_3764b604f5_z.jpg",
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/",
+        "id": 3,
+        "name": "Attribution-NonCommercial-NoDerivs License"
+      },
+      "width": 456,
+      "height": 640,
+      "group": "object",
+      "composition": "right"
+    }
+  ]
+}

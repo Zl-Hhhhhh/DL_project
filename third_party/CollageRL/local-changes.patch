@@ -1,0 +1,104 @@
+diff --git a/infer.py b/infer.py
+index 5328148..630b7f2 100644
+--- a/infer.py
++++ b/infer.py
+@@ -21,6 +21,8 @@ from module.measure import get_complexity_heatmap, calculate_complexity
+ 
+ 
+ parser = argparse.ArgumentParser(description='Collage Training Arguments')
++parser.add_argument('--output_dir', type=str, default=None)
++parser.add_argument('--no_video', action='store_true')
+ parser.add_argument('--algo', type=str, default='sac')  # sac | ddpg
+ parser.add_argument('--eval', type=bool, default=True)
+ parser.add_argument('--gamma', type=float, default=0.95)
+@@ -154,6 +156,8 @@ if args.disallow_duplicate:
+ if not args.paper_like:
+     result_dir += '_noline'
+ result_path = f'samples/results/{result_dir}'
++if args.output_dir:
++    result_path = args.output_dir
+ sequence_path = result_path + '/sequence'
+ os.makedirs(sequence_path, exist_ok=True)
+ 
+@@ -366,7 +370,8 @@ for ss, (target_width, target_height) in enumerate(zip(scale_order, scale_order)
+                 sequence_fname = f'{sequence_number}.jpg'
+                 full_canvas = np.clip(full_canvas, 0, 1)
+                 # if total_valid_steps % 50 == 0:  # 간격
+-                cv2.imwrite(f'{sequence_path}/{sequence_fname}', cv2.cvtColor(np.uint8(full_canvas*255), cv2.COLOR_BGR2RGB))
++                if not args.no_video:
++                    cv2.imwrite(f'{sequence_path}/{sequence_fname}', cv2.cvtColor(np.uint8(full_canvas*255), cv2.COLOR_BGR2RGB))
+ 
+         # One cycle ends
+     # One scale ends
+@@ -383,20 +388,22 @@ for ss, (target_width, target_height) in enumerate(zip(scale_order, scale_order)
+ # Collage ends
+ 
+ # Make sequence video
++cv2.imwrite(f'{result_path}/output.png', cv2.cvtColor(np.uint8(full_canvas*255), cv2.COLOR_BGR2RGB))
+ frames = []
+ fps = 30
+ for fname in tqdm(sorted(os.listdir(sequence_path))):
+-    if fname[-3:] == 'jpg':
++    if not args.no_video and fname[-3:] == 'jpg':
+         frames.append(cv2.imread(f'{sequence_path}/{fname}'))
+-VIDEO_WIDTH = frames[0].shape[1]
+-VIDEO_HEIGHT = frames[0].shape[0]
++VIDEO_WIDTH = frames[0].shape[1] if frames else 0
++VIDEO_HEIGHT = frames[0].shape[0] if frames else 0
+ vname = 'video'
+ video_name = f'{result_path}/video.mp4'
+ fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+-video = cv2.VideoWriter(f'{result_path}/{vname}.mp4', fourcc, fps, (VIDEO_WIDTH, VIDEO_HEIGHT), 1)
+-for frame in frames:
+-    video.write(np.uint8(frame))
+-video.release()
++if frames:
++    video = cv2.VideoWriter(f'{result_path}/{vname}.mp4', fourcc, fps, (VIDEO_WIDTH, VIDEO_HEIGHT), 1)
++    for frame in frames:
++        video.write(np.uint8(frame))
++    video.release()
+ 
+ # Print work info
+ print('\nCollage process done.')
+@@ -410,4 +417,4 @@ for key, val in skip_counter.items():
+     print(f'\t{key}: {val}')
+ print(f'Valid step rate: {round(100*(total_valid_steps/total_steps), 2)}%')
+ print(f'Cumulative times for each scale (sec):')
+-print(end_times)
+\ No newline at end of file
++print(end_times)
+diff --git a/module/gpu.py b/module/gpu.py
+index e7634fb..123ad98 100644
+--- a/module/gpu.py
++++ b/module/gpu.py
+@@ -1,17 +1,16 @@
+ import torch
+-import nvidia_smi
+ import numpy as np 
+ 
+ def get_free_device():
+     # Auto-GPU assignment: use a GPU device with lowest-memory usage
+-    nvidia_smi.nvmlInit()
+-    deviceCount = nvidia_smi.nvmlDeviceGetCount()
++    if not torch.cuda.is_available():
++        raise RuntimeError('CollageRL requires a CUDA-capable GPU and a CUDA-enabled PyTorch installation.')
++    deviceCount = torch.cuda.device_count()
+     freem = []
+     for i in range(deviceCount):
+-        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
+-        info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+-        freem.append(100*info.free/info.total)
+-    nvidia_smi.nvmlShutdown()
++        # Query CUDA directly: legacy NVML bindings hard-code an obsolete Windows DLL path.
++        free, total = torch.cuda.mem_get_info(i)
++        freem.append(100*free/total)
+     device_num = np.argmax(freem).item()
+     torch.cuda.set_device(device_num)
+     device = torch.device(f"cuda:{device_num}")
+@@ -19,4 +18,4 @@ def get_free_device():
+     return device
+ 
+ device = get_free_device()  # Use auto-GPU assignment
+-# device = 'cuda:0'  # ...or set manually
+\ No newline at end of file
++# device = 'cuda:0'  # ...or set manually

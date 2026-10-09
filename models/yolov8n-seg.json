@@ -1,0 +1,8 @@
+{
+  "model": "YOLOv8n-seg",
+  "path": "models/yolov8n-seg.pt",
+  "url": "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n-seg.pt",
+  "sha256": "a7cd8f929e1903d78a12a48efecab430209f18dc46cb96c3599a5980c63c423c",
+  "pretraining": "COCO; development overlap is disclosed",
+  "hash_note": "Locally computed identity hash, not an upstream-signed checksum."
+}

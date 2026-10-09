@@ -1,0 +1,20 @@
+schema_version: 1
+seed: 2012
+canvas_size: 512
+model_path: models/yolov8n-seg.pt
+model_url: https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n-seg.pt
+device: "0"
+confidence: 0.50
+min_confidence: 0.10
+inference_size: 640
+border_margin: 2
+allow_truncated: false
+styles: [duotone]
+compositions: [center, left, right]
+candidates_per_task: 8
+max_attempts: 32
+min_visible_fraction: 0.90
+palettes:
+  - {name: navy_coral, dark: [26, 39, 68], light: [247, 149, 128], background: [245, 237, 223]}
+  - {name: plum_yellow, dark: [67, 29, 67], light: [247, 207, 97], background: [244, 234, 210]}
+  - {name: pine_mint, dark: [18, 62, 53], light: [154, 216, 185], background: [242, 234, 215]}
