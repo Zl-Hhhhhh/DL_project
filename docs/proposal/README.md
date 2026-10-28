@@ -10,7 +10,7 @@ This folder contains an English proposal in the official NeurIPS 2026 preprint f
 
 ## Author information
 
-Replace the rules in `\AuthorName` and `\StudentID` with your actual name and student ID. Recompile and check the page count after editing. Research methods and data collection in the proposal are planned work; prototype results are identified separately.
+Set `\AuthorName` and `\StudentID` to your actual name and student ID. Recompile and check the page count after editing. Research methods and data collection in the proposal are planned work; prototype results are identified separately.
 
 ## Compile
 
@@ -40,3 +40,7 @@ Open the entire `D:/mystudy/DSAA2012/project` folder in VS Code so its workspace
 4. Run `LaTeX Workshop: View LaTeX PDF file`, or press `Ctrl+Alt+V`, to open the built-in PDF preview.
 
 PDF, log, auxiliary, and SyncTeX files are written to `output/pdf`. If another extension captures the shortcuts, invoke the LaTeX Workshop commands from the Command Palette.
+
+## Revised focus, 2026-10-09
+
+The proposal now centers on a photo editor with selectable styles, filters, and composition. Candidate selection is a supporting component. Online references will be curated and documented; no current popularity or aesthetic improvement is asserted as an established result.

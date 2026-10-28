@@ -6,6 +6,7 @@ __pycache__/
 .cache/
 data/cache/
 data/dev/images/
+data/photo*/images/
 models/*.pt
 models/instantstyle/
 models/dragondiffusion/

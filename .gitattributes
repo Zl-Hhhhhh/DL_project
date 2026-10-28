@@ -1,0 +1,2 @@
+# UniScheduler runs these files on Linux, including after a Windows checkout.
+scripts/hpc/*.sh text eol=lf

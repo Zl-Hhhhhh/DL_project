@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const state = {config:null, file:null, image:null, objectURL:null, style:null, composition:'center', busy:false, result:null, allowTruncated:false, detection:null, view:'source'};
 const compositionNames = {left:'靠左', center:'居中', right:'靠右'};
 Object.assign(state,{mode:'collage',styleImage:null,styleURL:null,materials:[],materialURLs:[],materialSource:'builtin',size:1024});
-Object.assign(state,{effect:'existing',posterPosition:'center'});
+Object.assign(state,{effect:'presets',posterPosition:'center',preset:'warm_film',presetPosition:'center'});
 const posterNames={center:'居中',top_left:'左上三分',top_right:'右上三分',bottom_left:'左下三分',bottom_right:'右下三分'};
 function updateEffectControls(){
   const collage=state.mode==='collage';
@@ -12,7 +12,13 @@ function updateEffectControls(){
   document.querySelector('.composition-section').hidden=!collage || state.effect!=='existing';
   $('color-focus-controls').hidden=state.effect!=='color_focus';
   $('poster-controls').hidden=state.effect!=='poster';
-  $('effect-note').textContent={existing:'移动主体，只填色遮盖主体原来的位置。',color_focus:'保留原有构图，通过背景调色突出主体。',poster:'保留主体原色，放在米白底上；原背景会移除。'}[state.effect];
+  $('preset-controls').hidden=state.effect!=='presets';
+  const poster=state.preset==='minimal_poster';
+  $('preset-position-controls').hidden=!poster;
+  $('preset-strength-label').textContent=poster?'留白程度':'预设强度';
+  const preset=state.config?.presets?.find(item=>item.id===state.preset);
+  $('preset-note').textContent=preset?(preset.description+(poster?' 调高留白程度会缩小主体。':'')):'';
+  $('effect-note').textContent={presets:'选择照片色调或海报构图，再调节效果。',existing:'移动主体，只填色遮盖主体原来的位置。',color_focus:'保留原有构图，通过背景调色突出主体。',poster:'保留主体原色，放在米白底上；原背景会移除。'}[state.effect];
 }
 function ready(){return !!(state.image && state.config && (state.mode==='collage' || state.styleImage) && (!$('enable-collagerl').checked || (state.materialSource==='builtin'?state.config.builtin_materials?.count:state.materials.length)));}
 function error(message, retry=false) { $('error-message').textContent=message; $('error-box').hidden=false; $('truncated-retry').hidden=!retry; }
@@ -22,7 +28,7 @@ function setBusy(busy) {
   document.querySelectorAll('.controls button').forEach(button=>button.disabled=busy);
   document.querySelectorAll('.controls input').forEach(input=>input.disabled=busy);
   $('generate-button').disabled=busy || !ready();
-  $('generate-label').textContent=busy?'正在生成':(state.mode==='collage'?'开始拼接':'开始风格化');
+  $('generate-label').textContent=busy?'正在生成':(state.mode==='collage'?(state.effect==='presets'?'开始处理':'开始拼接'):'开始风格化');
   document.querySelector('.generate-arrow').hidden=busy; $('button-spinner').hidden=!busy;
   $('generating-overlay').hidden=!busy; $('artboard').setAttribute('aria-busy',String(busy));
   if(busy){$('result-status').textContent='正在处理，请稍候'; $('download-button').hidden=true; $('view-toggle').hidden=true;}
@@ -50,7 +56,7 @@ function updatePreview() {
 function invalidateResult() {
   state.result=null; $('download-button').hidden=true; $('view-toggle').hidden=true; clearError();
   $('preview-title').textContent='画布预览';
-  $('preview-description').textContent=state.image?(state.mode==='stylize'?'上传风格图，调整强度后开始风格化':'选好样式，点击开始拼接'):'上传一张照片，开始创作';
+  $('preview-description').textContent=state.image?(state.mode==='stylize'?'上传风格图，调整强度后开始风格化':state.effect==='presets'?'选好预设，调整强度后开始处理':'选好样式，点击开始拼接'):'上传一张照片，开始创作';
   $('result-status').textContent=state.image?'已准备好':'等待上传';
   state.view='source';updatePreview();
   if(!state.busy)setBusy(false);
@@ -114,7 +120,8 @@ async function generate(allowTruncated=false) {
   if(state.busy || !ready())return;
   clearError(); setBusy(true); $('generation-stage').textContent='正在准备图片';
   const selection={style:state.mode==='collage' && state.effect!=='existing'?'original':state.style,composition:state.composition,mode:state.mode,size:state.size,postprocess:$('enable-collagerl').checked,
-    collage_effect:state.effect,background_saturation:Number($('background-saturation').value)/100,poster_position:state.posterPosition,subject_size:Number($('subject-size').value)/100};
+    collage_effect:state.effect,background_saturation:Number($('background-saturation').value)/100,poster_position:state.posterPosition,subject_size:Number($('subject-size').value)/100,
+    preset_id:state.preset,preset_strength:Number($('preset-strength').value)/100,preset_position:state.presetPosition};
   try{
     const submitted=await getJSON('/api/generate',{method:'POST',headers:{'Content-Type':'application/json','X-Collage-Token':state.config.token},body:JSON.stringify({image:state.image,...selection,allow_truncated:allowTruncated,style_image:state.mode==='stylize'?state.styleImage:undefined,prompt:$('style-prompt').value,style_strength:Number($('style-strength').value)/100,structure_strength:Number($('structure-strength').value)/100,material_source:state.materialSource,materials:selection.postprocess && state.materialSource==='custom'?state.materials:[]})});
     let job; const started=Date.now();
@@ -131,7 +138,7 @@ async function generate(allowTruncated=false) {
     const preview=new Image(); preview.src=job.output; await preview.decode();
     state.result={...job,...selection}; $('preview-image').src=job.output; $('preview-image').hidden=false; $('canvas-empty').hidden=true;
     $('preview-title').textContent='生成结果';
-    const description=selection.collage_effect==='color_focus'?`主体保色 · 背景饱和度 ${Math.round(selection.background_saturation*100)}%`:selection.collage_effect==='poster'?`纯色拼贴 · ${posterNames[selection.poster_position]} · 主体 ${Math.round(selection.subject_size*100)}%`:`拼接 · ${state.config.styles.find(s=>s.id===selection.style).name} · ${compositionNames[selection.composition]}`;
+    const description=selection.collage_effect==='presets'?`${state.config.presets.find(p=>p.id===selection.preset_id).name} · ${selection.preset_id==='minimal_poster'?'留白':'强度'} ${Math.round(selection.preset_strength*100)}%${selection.preset_id==='minimal_poster'?' · '+posterNames[selection.preset_position]:''}`:selection.collage_effect==='color_focus'?`主体保色 · 背景饱和度 ${Math.round(selection.background_saturation*100)}%`:selection.collage_effect==='poster'?`纯色拼贴 · ${posterNames[selection.poster_position]} · 主体 ${Math.round(selection.subject_size*100)}%`:`拼接 · ${state.config.styles.find(s=>s.id===selection.style).name} · ${compositionNames[selection.composition]}`;
     $('preview-description').textContent=(selection.mode==='stylize'?'风格化':description)+(selection.postprocess?' · CollageRL':'');
     $('view-original').setAttribute('aria-pressed','false'); $('view-result').setAttribute('aria-pressed','true');
     $('view-toggle').hidden=false;
@@ -159,7 +166,7 @@ $('show-boxes').addEventListener('change',()=>{$('threshold-control').hidden=!$(
 $('confidence-threshold').addEventListener('input',()=>{$('threshold-value').textContent=`${$('confidence-threshold').value}%`;updatePreview();});
 async function init(){try{
   state.config=await getJSON('/api/config');state.style=state.config.styles[0].id;
-  if(!state.config.collage_effects?.includes('poster') || !state.config.conversion_modes?.includes('stylize') || !state.config.material_sources?.includes('builtin') || !state.config.output_sizes?.includes(512)){state.config=null;error('服务版本需要更新，请重新启动 start-ui.cmd 后刷新页面。');return;}
+  if(!state.config.presets?.length || !state.config.collage_effects?.includes('poster') || !state.config.conversion_modes?.includes('stylize') || !state.config.material_sources?.includes('builtin') || !state.config.output_sizes?.includes(512)){state.config=null;error('服务版本需要更新，请重新启动 start-ui.cmd 后刷新页面。');return;}
   const library=state.config.builtin_materials;
   $('builtin-materials-note').textContent=library.count?`报纸与杂志 · ${library.count} 张，已预选 ${library.used_count} 张用于生成`:'内置素材尚未安装，请选择自定义上传。';
   if(library.count){$('builtin-materials-preview').src=library.preview;$('builtin-materials-preview').hidden=false;}
@@ -169,7 +176,13 @@ async function init(){try{
     if(style.id==='original')button.classList.add('original-option');
     const img=document.createElement('img');img.src=style.preview;img.alt='';img.width=128;img.height=128;const label=document.createElement('strong');label.textContent=style.name;button.append(img,label);
     button.addEventListener('click',()=>{if(state.busy)return;state.style=style.id;[...$('styles').children].forEach(b=>{b.setAttribute('aria-checked',String(b===button));b.tabIndex=b===button?0:-1;});invalidateResult();});$('styles').append(button);
-  });setBusy(false);
+  });
+  state.config.presets.forEach((preset,index)=>{
+    const button=document.createElement('button');button.type='button';button.className='preset-option';button.dataset.preset=preset.id;button.setAttribute('role','radio');button.setAttribute('aria-checked',String(index===0));button.tabIndex=index===0?0:-1;
+    const img=document.createElement('img');img.src=preset.preview;img.alt='';img.width=160;img.height=120;
+    const title=document.createElement('strong');title.textContent=preset.name;button.append(img,title);
+    button.addEventListener('click',()=>{if(state.busy)return;state.preset=preset.id;[...$('presets').children].forEach(b=>{b.setAttribute('aria-checked',String(b===button));b.tabIndex=b===button?0:-1;});updateEffectControls();invalidateResult();});$('presets').append(button);
+  });updateEffectControls();setBusy(false);
 }catch(err){error('无法连接本地服务，请确认启动窗口仍在运行，然后刷新页面。');}}
 init();
 
@@ -190,7 +203,14 @@ document.querySelectorAll('[data-poster-position]').forEach(button=>button.addEv
   document.querySelectorAll('[data-poster-position]').forEach(b=>{b.setAttribute('aria-checked',String(b===button));b.tabIndex=b===button?0:-1;});invalidateResult();
 }));
 document.querySelector('.effect-control').addEventListener('keydown',groupKeyboard);
-document.querySelector('.poster-position-control').addEventListener('keydown',groupKeyboard);
+document.querySelector('#poster-controls .poster-position-control').addEventListener('keydown',groupKeyboard);
+document.querySelector('.preset-position-control').addEventListener('keydown',groupKeyboard);
+$('presets').addEventListener('keydown',groupKeyboard);
+document.querySelectorAll('[data-preset-position]').forEach(button=>button.addEventListener('click',()=>{
+  if(state.busy)return;state.presetPosition=button.dataset.presetPosition;
+  document.querySelectorAll('[data-preset-position]').forEach(b=>{b.setAttribute('aria-checked',String(b===button));b.tabIndex=b===button?0:-1;});invalidateResult();
+}));
+$('preset-strength').addEventListener('input',()=>{$('preset-strength-value').textContent=$('preset-strength').value+'%';invalidateResult();});
 ['background-saturation','subject-size'].forEach(id=>$(id).addEventListener('input',()=>{$(id+'-value').textContent=$(id).value+'%';invalidateResult();}));
 function updateSize(){
   $('canvas-dimensions').textContent=`${state.size} × ${state.size}`;

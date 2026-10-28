@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "dataset": "COCO val2017",
+  "source": "https://cocodataset.org/#download",
+  "seed": 20261027,
+  "per_category": 12,
+  "coco_split": "val2017",
+  "annotation_source": {
+    "archive_url": "https://s3.us-east-1.amazonaws.com/images.cocodataset.org/annotations/annotations_trainval2017.zip",
+    "member": "annotations/instances_val2017.json",
+    "member_crc32": "2e9b8b45",
+    "extracted_sha256": "e8c7f7908f1d7278341fae127d0da654f102f11bd7b21d8aeefa635b8c810b6f",
+    "verification": "ZIP member CRC32 and locally computed SHA-256; full archive not downloaded"
+  },
+  "selection": "Seeded, category-balanced, interior non-crowd annotated subjects; CC BY / CC BY-SA only; frozen before model inference.",
+  "duplicate_screen": "Exact SHA-256 and 64-bit dHash distance <=4 against development and all selected sources; not a guarantee against all related captures.",
+  "restrictions": [
+    "Existing 12 development sources excluded.",
+    "Validation/test images are reserved; not used for preview or fixed comparisons.",
+    "COCO-pretrained models may have seen these sources."
+  ],
+  "excluded_duplicates": [],
+  "images": [
+    {
+      "image_id": 252219,
+      "annotation_id": 495624,
+      "category": "person",
+      "bbox_xywh": [
+        510.44,
+        171.27,
+        123.66,
+        215.76
+      ],
+      "area_fraction": 0.04138914920414719,
+      "width": 640,
+      "height": 428,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm4.staticflickr.com/3446/3232237447_13d84bd0a1_z.jpg",
+      "file_name": "000000252219.jpg",
+      "sha256": "1cf48bddb1bcab80d9f4d18514ae438c3e4f57d18e80c4fbea9d5d22396f514a",
+      "dhash64": "cf69391b33230f0f",
+      "source_id": "coco_val2017_000000252219",
+      "capture_group": "coco_val2017_000000252219",
+      "split": "val",
+      "relative_path": "images/000000252219.jpg",
+      "path": "data/photo120/images/000000252219.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000252219.jpg"
+    },
+    {
+      "image_id": 402774,
+      "annotation_id": 486282,
+      "category": "person",
+      "bbox_xywh": [
+        127.71,
+        158.01,
+        149.24,
+        464.94
+      ],
+      "area_fraction": 0.15946149963235298,
+      "width": 425,
+      "height": 640,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm9.staticflickr.com/8201/8158349940_3eb8a41660_z.jpg",
+      "file_name": "000000402774.jpg",
+      "sha256": "de2566157fe6dc38cd6a87b557d7b731079b39ea009e835f310f558445b506ca",
+      "dhash64": "f97a33393cb20edc",
+      "source_id": "coco_val2017_000000402774",
+      "capture_group": "coco_val2017_000000402774",
+      "split": "val",
+      "relative_path": "images/000000402774.jpg",
+      "path": "data/photo120/images/000000402774.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000402774.jpg"
+    },
+    {
+      "image_id": 177015,
+      "annotation_id": 52320,
+      "category": "cat",
+      "bbox_xywh": [
+        312.68,
+        182.81,
+        298.4,
+        178.56
+      ],
+      "area_fraction": 0.09519224479166667,
+      "width": 640,
+      "height": 480,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm1.staticflickr.com/131/355302776_1d1215b7c1_z.jpg",
+      "file_name": "000000177015.jpg",
+      "sha256": "13bc4db7ed2ac2612fd03cbb25a597712f99cf1e44784d4abde5aca47f6999c7",
+      "dhash64": "77f6e6cdb68c0c8c",
+      "source_id": "coco_val2017_000000177015",
+      "capture_group": "coco_val2017_000000177015",
+      "split": "val",
+      "relative_path": "images/000000177015.jpg",
+      "path": "data/photo120/images/000000177015.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000177015.jpg"
+    },
+    {
+      "image_id": 570664,
+      "annotation_id": 49525,
+      "category": "cat",
+      "bbox_xywh": [
+        275.71,
+        130.34,
+        185.48,
+        195.5
+      ],
+      "area_fraction": 0.14609686366366365,
+      "width": 500,
+      "height": 333,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm1.staticflickr.com/208/508728978_915f97d63a_z.jpg",
+      "file_name": "000000570664.jpg",
+      "sha256": "34579fb585399d271b1530f0f9171fa5b7170f8e6abd8a4bd90c6569904e3967",
+      "dhash64": "87839841676b796c",
+      "source_id": "coco_val2017_000000570664",
+      "capture_group": "coco_val2017_000000570664",
+      "split": "val",
+      "relative_path": "images/000000570664.jpg",
+      "path": "data/photo120/images/000000570664.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000570664.jpg"
+    },
+    {
+      "image_id": 579321,
+      "annotation_id": 3419,
+      "category": "dog",
+      "bbox_xywh": [
+        200.61,
+        89.65,
+        400.22,
+        251.02
+      ],
+      "area_fraction": 0.23802878796435747,
+      "width": 640,
+      "height": 498,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm5.staticflickr.com/4114/4737904204_465fa5d55b_z.jpg",
+      "file_name": "000000579321.jpg",
+      "sha256": "7de922c9b80b5d223df9ed43fd551c00abed83ea85a5c36a7b8f19bfcfb00d29",
+      "dhash64": "aa9f333270647899",
+      "source_id": "coco_val2017_000000579321",
+      "capture_group": "coco_val2017_000000579321",
+      "split": "val",
+      "relative_path": "images/000000579321.jpg",
+      "path": "data/photo120/images/000000579321.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000579321.jpg"
+    },
+    {
+      "image_id": 530624,
+      "annotation_id": 5441,
+      "category": "dog",
+      "bbox_xywh": [
+        96.57,
+        107.19,
+        518.55,
+        194.09
+      ],
+      "area_fraction": 0.1728863557466004,
+      "width": 640,
+      "height": 478,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm6.staticflickr.com/5195/7235177844_90ef706004_z.jpg",
+      "file_name": "000000530624.jpg",
+      "sha256": "7823ebc01012afee0fc555b20d87030c5cebe71c3cc82f0cb41c68bf8d44ca8e",
+      "dhash64": "f159acbcf0c90f0f",
+      "source_id": "coco_val2017_000000530624",
+      "capture_group": "coco_val2017_000000530624",
+      "split": "val",
+      "relative_path": "images/000000530624.jpg",
+      "path": "data/photo120/images/000000530624.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000530624.jpg"
+    },
+    {
+      "image_id": 118209,
+      "annotation_id": 57011,
+      "category": "horse",
+      "bbox_xywh": [
+        9.27,
+        72.1,
+        353.31,
+        380.09
+      ],
+      "area_fraction": 0.2010233264973958,
+      "width": 640,
+      "height": 480,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm5.staticflickr.com/4104/4953441455_a1b9200a62_z.jpg",
+      "file_name": "000000118209.jpg",
+      "sha256": "ceae3f93b17268cf155a5733f7858fc59803ad17c7d7f06a0deed244bbb9556f",
+      "dhash64": "accccdccd9989881",
+      "source_id": "coco_val2017_000000118209",
+      "capture_group": "coco_val2017_000000118209",
+      "split": "val",
+      "relative_path": "images/000000118209.jpg",
+      "path": "data/photo120/images/000000118209.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000118209.jpg"
+    },
+    {
+      "image_id": 454798,
+      "annotation_id": 56939,
+      "category": "horse",
+      "bbox_xywh": [
+        140.75,
+        99.62,
+        286.08,
+        264.14
+      ],
+      "area_fraction": 0.08822079172794117,
+      "width": 640,
+      "height": 425,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm9.staticflickr.com/8108/8653189194_05e2d93b19_z.jpg",
+      "file_name": "000000454798.jpg",
+      "sha256": "dfbfd893042e08d1abd8285a74ef5d241727f946ecc6d72abc7e4d9918eb5079",
+      "dhash64": "f1c1e531363efd3d",
+      "source_id": "coco_val2017_000000454798",
+      "capture_group": "coco_val2017_000000454798",
+      "split": "val",
+      "relative_path": "images/000000454798.jpg",
+      "path": "data/photo120/images/000000454798.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000454798.jpg"
+    },
+    {
+      "image_id": 158945,
+      "annotation_id": 2123306,
+      "category": "chair",
+      "bbox_xywh": [
+        209.77,
+        109.09,
+        190.56,
+        129.89
+      ],
+      "area_fraction": 0.04600829023927825,
+      "width": 478,
+      "height": 640,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm5.staticflickr.com/4124/5072296382_e96d46c3cf_z.jpg",
+      "file_name": "000000158945.jpg",
+      "sha256": "d86467a75ad39f01f62aa5335f77430f3f769e40da2f76d2dee08544470ade53",
+      "dhash64": "9ed4d5d1594b6b27",
+      "source_id": "coco_val2017_000000158945",
+      "capture_group": "coco_val2017_000000158945",
+      "split": "val",
+      "relative_path": "images/000000158945.jpg",
+      "path": "data/photo120/images/000000158945.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000158945.jpg"
+    },
+    {
+      "image_id": 189820,
+      "annotation_id": 102699,
+      "category": "chair",
+      "bbox_xywh": [
+        367.31,
+        134.99,
+        251.61,
+        277.32
+      ],
+      "area_fraction": 0.1323535794789227,
+      "width": 640,
+      "height": 427,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm1.staticflickr.com/23/32908206_2fa869b5bf_z.jpg",
+      "file_name": "000000189820.jpg",
+      "sha256": "194f0aca3fbaed6f998e1f87d90ee64f8590bf29d39fdc4c250b79015731faab",
+      "dhash64": "4599b1a5393b7371",
+      "source_id": "coco_val2017_000000189820",
+      "capture_group": "coco_val2017_000000189820",
+      "split": "val",
+      "relative_path": "images/000000189820.jpg",
+      "path": "data/photo120/images/000000189820.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000189820.jpg"
+    },
+    {
+      "image_id": 534673,
+      "annotation_id": 163637,
+      "category": "bus",
+      "bbox_xywh": [
+        43.05,
+        79.21,
+        549.95,
+        325.02
+      ],
+      "area_fraction": 0.4320921240234375,
+      "width": 640,
+      "height": 480,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm8.staticflickr.com/7054/8689267710_94db8887b8_z.jpg",
+      "file_name": "000000534673.jpg",
+      "sha256": "e3596c112886930b23b8e698ad5f637a1fe7522f45acc7f7a927b4a7e294757a",
+      "dhash64": "3c74a6b373fc5c03",
+      "source_id": "coco_val2017_000000534673",
+      "capture_group": "coco_val2017_000000534673",
+      "split": "val",
+      "relative_path": "images/000000534673.jpg",
+      "path": "data/photo120/images/000000534673.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000534673.jpg"
+    },
+    {
+      "image_id": 309391,
+      "annotation_id": 1365432,
+      "category": "bus",
+      "bbox_xywh": [
+        485.82,
+        224.36,
+        115.64,
+        121.67
+      ],
+      "area_fraction": 0.053741680094401056,
+      "width": 640,
+      "height": 384,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm6.staticflickr.com/5246/5329327710_92169d73d4_z.jpg",
+      "file_name": "000000309391.jpg",
+      "sha256": "8ed212a0ffcf1b3d5f1fb307839030fb41aed1ff7488845a3bed02e386474082",
+      "dhash64": "072e5a98ea4b161e",
+      "source_id": "coco_val2017_000000309391",
+      "capture_group": "coco_val2017_000000309391",
+      "split": "val",
+      "relative_path": "images/000000309391.jpg",
+      "path": "data/photo120/images/000000309391.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000309391.jpg"
+    },
+    {
+      "image_id": 296634,
+      "annotation_id": 715472,
+      "category": "bowl",
+      "bbox_xywh": [
+        234.13,
+        41.43,
+        373.6,
+        377.67
+      ],
+      "area_fraction": 0.4579735578780352,
+      "width": 640,
+      "height": 453,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm8.staticflickr.com/7064/6927990329_9df1053911_z.jpg",
+      "file_name": "000000296634.jpg",
+      "sha256": "d655d317be6a4c34514b7c4e9412e25b98c7af7c05df40c2ce47ff2025b4caf4",
+      "dhash64": "5d6d656544646d1c",
+      "source_id": "coco_val2017_000000296634",
+      "capture_group": "coco_val2017_000000296634",
+      "split": "val",
+      "relative_path": "images/000000296634.jpg",
+      "path": "data/photo120/images/000000296634.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000296634.jpg"
+    },
+    {
+      "image_id": 560011,
+      "annotation_id": 1536000,
+      "category": "bowl",
+      "bbox_xywh": [
+        126.81,
+        163.36,
+        161.62,
+        107.01
+      ],
+      "area_fraction": 0.07366835602409638,
+      "width": 332,
+      "height": 500,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm3.staticflickr.com/2056/2212485799_fd16c60c3a_z.jpg",
+      "file_name": "000000560011.jpg",
+      "sha256": "811b554184a3e1b1d2515f912c3dc972f81bdbcceb607629bef3a21fc5e8db38",
+      "dhash64": "6c1580f07c0d3037",
+      "source_id": "coco_val2017_000000560011",
+      "capture_group": "coco_val2017_000000560011",
+      "split": "val",
+      "relative_path": "images/000000560011.jpg",
+      "path": "data/photo120/images/000000560011.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000560011.jpg"
+    },
+    {
+      "image_id": 433103,
+      "annotation_id": 1099920,
+      "category": "laptop",
+      "bbox_xywh": [
+        93.56,
+        284.76,
+        239.87,
+        124.41
+      ],
+      "area_fraction": 0.05080230974264707,
+      "width": 640,
+      "height": 425,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+        "id": 5,
+        "name": "Attribution-ShareAlike License"
+      },
+      "flickr_url": "http://farm8.staticflickr.com/7169/6771617469_cb52603210_z.jpg",
+      "file_name": "000000433103.jpg",
+      "sha256": "103ec46b0058a4f51b5ead2764940cb02af9d3812023ab22dcaa14c1432a4496",
+      "dhash64": "e2e3c995c6923276",
+      "source_id": "coco_val2017_000000433103",
+      "capture_group": "coco_val2017_000000433103",
+      "split": "val",
+      "relative_path": "images/000000433103.jpg",
+      "path": "data/photo120/images/000000433103.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000433103.jpg"
+    },
+    {
+      "image_id": 363840,
+      "annotation_id": 1102546,
+      "category": "laptop",
+      "bbox_xywh": [
+        274.59,
+        84.86,
+        244.33,
+        269.19
+      ],
+      "area_fraction": 0.15038591650390626,
+      "width": 640,
+      "height": 480,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm3.staticflickr.com/2797/4256603007_6fbbea22de_z.jpg",
+      "file_name": "000000363840.jpg",
+      "sha256": "231e12c229c2f84c186085b320a6a8dcaa3d4763bbd09940204121379a5b3e11",
+      "dhash64": "c31f1c1918dbd3b0",
+      "source_id": "coco_val2017_000000363840",
+      "capture_group": "coco_val2017_000000363840",
+      "split": "val",
+      "relative_path": "images/000000363840.jpg",
+      "path": "data/photo120/images/000000363840.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000363840.jpg"
+    },
+    {
+      "image_id": 213033,
+      "annotation_id": 282459,
+      "category": "umbrella",
+      "bbox_xywh": [
+        23.01,
+        139.6,
+        310.65,
+        172.59
+      ],
+      "area_fraction": 0.07738739453125001,
+      "width": 480,
+      "height": 640,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm8.staticflickr.com/7432/9152238734_d0dd381aa5_z.jpg",
+      "file_name": "000000213033.jpg",
+      "sha256": "73a97cb8eceb57e2b1872b7470a11c6e5abb2c03173bd4ce94a45c0d096ae5ea",
+      "dhash64": "535130783070000c",
+      "source_id": "coco_val2017_000000213033",
+      "capture_group": "coco_val2017_000000213033",
+      "split": "val",
+      "relative_path": "images/000000213033.jpg",
+      "path": "data/photo120/images/000000213033.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000213033.jpg"
+    },
+    {
+      "image_id": 121506,
+      "annotation_id": 283775,
+      "category": "umbrella",
+      "bbox_xywh": [
+        93.52,
+        60.09,
+        485.47,
+        196.67
+      ],
+      "area_fraction": 0.13977248160429748,
+      "width": 612,
+      "height": 612,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm8.staticflickr.com/7116/7721233008_99b07f96b1_z.jpg",
+      "file_name": "000000121506.jpg",
+      "sha256": "c343589eeba3701c2e6bc2b7f7f6c65eaaf9b2d998fd0402b90d82bdc69a0325",
+      "dhash64": "230767074f1f4fcd",
+      "source_id": "coco_val2017_000000121506",
+      "capture_group": "coco_val2017_000000121506",
+      "split": "val",
+      "relative_path": "images/000000121506.jpg",
+      "path": "data/photo120/images/000000121506.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000121506.jpg"
+    },
+    {
+      "image_id": 108864,
+      "annotation_id": 581517,
+      "category": "elephant",
+      "bbox_xywh": [
+        116.49,
+        178.05,
+        214.66,
+        215.73
+      ],
+      "area_fraction": 0.08905042431640625,
+      "width": 640,
+      "height": 480,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm5.staticflickr.com/4087/5009225838_5aef0db1b4_z.jpg",
+      "file_name": "000000108864.jpg",
+      "sha256": "60a45359806ce8d17af58c7c85448e5c88fae98530c03846817ef186a24714ba",
+      "dhash64": "83c8ccfcf89b073f",
+      "source_id": "coco_val2017_000000108864",
+      "capture_group": "coco_val2017_000000108864",
+      "split": "val",
+      "relative_path": "images/000000108864.jpg",
+      "path": "data/photo120/images/000000108864.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000108864.jpg"
+    },
+    {
+      "image_id": 414795,
+      "annotation_id": 1409580,
+      "category": "elephant",
+      "bbox_xywh": [
+        77.11,
+        265.29,
+        212.58,
+        101.78
+      ],
+      "area_fraction": 0.0416414208984375,
+      "width": 640,
+      "height": 480,
+      "license": {
+        "url": "http://creativecommons.org/licenses/by/2.0/",
+        "id": 4,
+        "name": "Attribution License"
+      },
+      "flickr_url": "http://farm1.staticflickr.com/69/221842206_28bfc63fc8_z.jpg",
+      "file_name": "000000414795.jpg",
+      "sha256": "8d3945f3c30be9a21aed6e9808f39e74a46bb20198f7bd29e24f4279e716af1e",
+      "dhash64": "a786a8609e445452",
+      "source_id": "coco_val2017_000000414795",
+      "capture_group": "coco_val2017_000000414795",
+      "split": "val",
+      "relative_path": "images/000000414795.jpg",
+      "path": "data/photo120/images/000000414795.jpg",
+      "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000414795.jpg"
+    }
+  ]
+}

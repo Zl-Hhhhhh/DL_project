@@ -1,0 +1,33 @@
+{
+  "source": {
+    "image_id": 50811,
+    "annotation_id": 451781,
+    "category": "person",
+    "bbox_xywh": [
+      72.22,
+      66.09,
+      393.79,
+      425.13
+    ],
+    "area_fraction": 0.28027994021177693,
+    "width": 640,
+    "height": 605,
+    "license": {
+      "url": "http://creativecommons.org/licenses/by-sa/2.0/",
+      "id": 5,
+      "name": "Attribution-ShareAlike License"
+    },
+    "flickr_url": "http://farm9.staticflickr.com/8328/8133371246_ae679ac932_z.jpg",
+    "file_name": "000000050811.jpg",
+    "sha256": "c69067b49ec7f1f07045130495c56fd29da44178965a33861b51a503a041acfa",
+    "dhash64": "98666c6464391939",
+    "source_id": "coco_val2017_000000050811",
+    "capture_group": "coco_val2017_000000050811",
+    "split": "train",
+    "relative_path": "images/000000050811.jpg",
+    "path": "data/photo120/images/000000050811.jpg",
+    "download_url": "https://s3.amazonaws.com/images.cocodataset.org/val2017/000000050811.jpg"
+  },
+  "selection": "first usable person training example; otherwise first usable fixed training example",
+  "strength": 0.7
+}

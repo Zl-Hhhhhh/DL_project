@@ -44,11 +44,27 @@
       <section class="control-section" id="collage-effects">
         <h2>处理效果</h2>
         <div class="effect-control" role="radiogroup" aria-label="拼接效果">
-          <button type="button" role="radio" data-effect="existing" aria-checked="true">原图拼接</button>
+          <button type="button" role="radio" data-effect="presets" aria-checked="true">风格预设</button>
+          <button type="button" role="radio" data-effect="existing" aria-checked="false" tabindex="-1">原图拼接</button>
           <button type="button" role="radio" data-effect="color_focus" aria-checked="false" tabindex="-1">主体保色</button>
           <button type="button" role="radio" data-effect="poster" aria-checked="false" tabindex="-1">纯色拼贴</button>
         </div>
-        <p class="field-note" id="effect-note">移动主体，只填色遮盖主体原来的位置。</p>
+        <p class="field-note" id="effect-note">选择照片色调或海报构图，再调节效果。</p>
+        <div id="preset-controls">
+          <div class="preset-grid" id="presets" role="radiogroup" aria-label="风格预设"></div>
+          <label class="range-label" for="preset-strength"><span id="preset-strength-label">预设强度</span><output id="preset-strength-value">70%</output></label>
+          <input class="strength-slider" id="preset-strength" type="range" min="0" max="100" value="70" step="5">
+          <p class="field-note" id="preset-note">柔和对比，偏暖色调，保留原有构图。</p>
+          <div id="preset-position-controls" hidden>
+            <div class="poster-position-control preset-position-control" role="radiogroup" aria-label="预设海报构图">
+              <button type="button" role="radio" data-preset-position="top_left" aria-checked="false" tabindex="-1">左上三分</button>
+              <button type="button" role="radio" data-preset-position="top_right" aria-checked="false" tabindex="-1">右上三分</button>
+              <button type="button" role="radio" data-preset-position="center" aria-checked="true">居中</button>
+              <button type="button" role="radio" data-preset-position="bottom_left" aria-checked="false" tabindex="-1">左下三分</button>
+              <button type="button" role="radio" data-preset-position="bottom_right" aria-checked="false" tabindex="-1">右下三分</button>
+            </div>
+          </div>
+        </div>
         <div id="color-focus-controls" hidden>
           <label class="range-label" for="background-saturation">背景饱和度<output id="background-saturation-value">15%</output></label>
           <input class="strength-slider" id="background-saturation" type="range" min="0" max="100" value="15" step="5">

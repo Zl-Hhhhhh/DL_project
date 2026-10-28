@@ -1,0 +1,9 @@
+# Install inside the selected Linux image. Do not use the Windows lockfile.
+-c configs/hpc-constraints.txt
+numpy==1.26.4
+Pillow==11.1.0
+opencv-python==4.10.0.84
+ultralytics==8.3.203
+PyYAML==6.0.2
+requests>=2.31,<3
+pytest==8.3.5

@@ -1,0 +1,6 @@
+# UniScheduler image: pytorch:py310-2.1.0, NVIDIA A800-SXM4-80GB.
+# == accepts the corresponding CUDA local version, e.g. 2.1.0+cu121.
+torch==2.1.0
+torchvision==0.16.0
+numpy==1.26.4
+opencv-python==4.10.0.84

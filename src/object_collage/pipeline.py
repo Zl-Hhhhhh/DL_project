@@ -140,7 +140,10 @@ def replay(record_path, output_path):
     if sha256(source) != record['source_sha256'] or sha256(mask_path) != record['mask_sha256']:
         raise ValueError('Replay input hash mismatch')
     with Image.open(source) as image, Image.open(mask_path) as mask:
-        if record['params'].get('version') == 'priority-study-v1':
+        if record['params'].get('version') == 'photo-presets-v1':
+            from .presets import render_preset
+            output, visible, metrics = render_preset(image, np.asarray(mask)>0, record['params'])
+        elif record['params'].get('version') == 'priority-study-v1':
             from .composition_study import render_candidate
             output, visible, metrics = render_candidate(image, np.asarray(mask)>0, record['params'])
         else:

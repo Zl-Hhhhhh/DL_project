@@ -21,6 +21,7 @@ from PIL import Image, UnidentifiedImageError
 from .io import configure_local_runtime, letterbox, sha256, write_json
 from .render import TARGETS, generate_candidates
 from .segmentation import Segmenter
+from .presets import PRESETS, POSITIONS, catalog as preset_catalog, parameters as preset_parameters, render_preset
 
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
 MAX_REQUEST_BYTES = 80 * 1024 * 1024
@@ -51,11 +52,22 @@ def validate_options(payload, detect_only=False):
         return options
     if mode == 'collage':
         effect = payload.get('collage_effect', 'existing')
-        if effect not in ('existing', 'color_focus', 'poster'):
+        if effect not in ('existing', 'color_focus', 'poster', 'presets'):
             raise InputError('请选择页面中提供的拼接效果。')
         if effect != 'existing':
             options['collage_effect'] = effect
-            if effect == 'color_focus':
+            if effect == 'presets':
+                preset = payload.get('preset_id', 'warm_film')
+                strength = payload.get('preset_strength', .7)
+                position = payload.get('preset_position', 'center')
+                if not isinstance(preset, str) or preset not in PRESETS:
+                    raise InputError('请选择页面中提供的风格预设。')
+                if type(strength) not in (int, float) or not 0 <= strength <= 1:
+                    raise InputError('预设强度应在 0–100% 之间。')
+                if not isinstance(position, str) or position not in POSITIONS:
+                    raise InputError('请选择居中或三分交点。')
+                options.update(preset_id=preset, preset_strength=strength, preset_position=position)
+            elif effect == 'color_focus':
                 value = payload.get('background_saturation', 0.15)
                 if type(value) not in (int, float) or not 0 <= value <= 1:
                     raise InputError('背景饱和度应在 0–100% 之间。')
@@ -158,7 +170,7 @@ class Editor:
         except (ValueError, OSError, KeyError):
             entries = []
         return {'token': self.token, 'max_bytes': MAX_IMAGE_BYTES, 'canvas_size': self.config['canvas_size'], 'output_sizes':[512,1024], 'conversion_modes':['collage','stylize'],
-                'collage_effects':['existing','color_focus','poster'],
+                'collage_effects':['existing','color_focus','poster','presets'], 'presets':preset_catalog(),
                 'material_sources':['builtin','custom'], 'builtin_materials':{'count':len(entries), 'used_count':min(8,len(entries)), 'preview':'/assets/builtin-materials.jpg'},
                 'styles': [{'id': key, 'name': STYLE_NAMES.get(key, key), 'preview': f'/assets/{key}.png'} for key in self.palettes]}
 
@@ -210,12 +222,16 @@ class Editor:
             config['render_style'] = 'original' if style == 'original' else 'duotone'
             config['background_mode'] = 'source_masked'
             if options.get('collage_effect'):
-                config['interactive_effect'] = {key:value for key,value in options.items() if key in ('collage_effect','background_saturation','poster_position','subject_size')}
+                config['interactive_effect'] = {key:value for key,value in options.items() if key in ('collage_effect','background_saturation','poster_position','subject_size','preset_id','preset_strength','preset_position')}
             if detect_only:
                 config['min_confidence'] = 0.01
             write_json(folder/'config.json', config)
             image, alpha, mapping = letterbox(upload, config['canvas_size'])
             image.save(folder/'source.png')
+            if (not detect_only and options.get('collage_effect') == 'presets'
+                    and not PRESETS[options['preset_id']]['requires_subject']):
+                self.generate_preset(job_id, folder, image, None, mapping, options)
+                return
             if options['mode'] == 'stylize' and not detect_only:
                 from .external_pipeline import release_models, stylize
                 release_models(self)
@@ -242,6 +258,9 @@ class Editor:
                 self.update(job_id, state='failed', code=code, message=FAILURES.get(code, '暂时无法提取这张图片的主体，请换一张图片。'))
                 return
             self.update(job_id, stage='正在生成拼贴')
+            if options.get('collage_effect') == 'presets':
+                self.generate_preset(job_id, folder, image, mask, mapping, options, segmentation)
+                return
             if options.get('collage_effect') in ('color_focus', 'poster'):
                 from .composition_study import render_candidate
                 effect = options['collage_effect']
@@ -282,6 +301,23 @@ class Editor:
             self.update(job_id, state='failed', code='generation_error', message='生成遇到问题，请重新尝试；如果持续失败，请检查启动窗口中的错误信息。')
         finally:
             self.busy.release()
+
+    def generate_preset(self, job_id, folder, image, mask, mapping, options, segmentation=None):
+        self.update(job_id, stage='正在应用风格预设')
+        params = preset_parameters(options['preset_id'], options['preset_strength'], options['size'],
+                                   mapping['content_box_xyxy'], options['preset_position'])
+        output, visible, metrics = render_preset(image, mask, params)
+        output.save(folder/'output.png')
+        visible.save(folder/'visible_mask.png')
+        stored_mask = Image.fromarray((np.asarray(mask,dtype=bool)*255).astype(np.uint8)) if mask is not None else Image.new('L',image.size)
+        stored_mask.save(folder/'mask.png')
+        record = {'source':'source.png', 'mask':'mask.png', 'source_sha256':sha256(folder/'source.png'),
+                  'mask_sha256':sha256(folder/'mask.png'), 'output_sha256':sha256(folder/'output.png'),
+                  'params':params, 'metrics':metrics, 'canvas_mapping':mapping, 'mode':'interactive',
+                  'collage_effect':'presets', 'preset_id':options['preset_id'], 'selection_method':'user_preset',
+                  'segmentation':segmentation or {'status':'not_required'}, 'candidate_count':1}
+        write_json(folder/'params.json', record)
+        self.finish(job_id, folder, options, {'status':'ok', **record}, bool(segmentation and segmentation['touches_content_border']))
 
     def finish(self, job_id, folder, options, record, truncated=False):
         if options['postprocess']:
@@ -337,7 +373,7 @@ def handler_for(editor):
                     if preview.is_file():
                         self.reply(200, preview.read_bytes(), 'image/jpeg')
                         return
-                allowed = {'app.js': 'text/javascript; charset=utf-8', 'style.css': 'text/css; charset=utf-8', 'example.jpg': 'image/jpeg', **{f'{key}.png': 'image/png' for key in editor.palettes}}
+                allowed = {'app.js': 'text/javascript; charset=utf-8', 'style.css': 'text/css; charset=utf-8', 'example.jpg': 'image/jpeg', **{f'{key}.png': 'image/png' for key in editor.palettes}, **{f'preset_{key}.png':'image/png' for key in PRESETS}}
                 if filename in allowed and (ASSETS/filename).is_file():
                     self.reply(200, (ASSETS/filename).read_bytes(), allowed[filename])
                     return

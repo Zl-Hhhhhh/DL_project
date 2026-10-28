@@ -1,0 +1,24 @@
+{
+  "total": 120,
+  "splits": {
+    "train": 80,
+    "val": 20,
+    "test": 20
+  },
+  "categories": {
+    "person": 12,
+    "cat": 12,
+    "dog": 12,
+    "horse": 12,
+    "chair": 12,
+    "bus": 12,
+    "bowl": 12,
+    "laptop": 12,
+    "umbrella": 12,
+    "elephant": 12
+  },
+  "image_bytes": 20425550,
+  "development_overlap": 0,
+  "perceptual_duplicates_rejected": 0,
+  "inference_performed": false
+}
