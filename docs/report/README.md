@@ -2,19 +2,24 @@
 
 `main.tex` is the English NeurIPS-format working draft, based on the teacher's
 paper samples. It reuses the course proposal's local `neurips_2026.sty`.
-The compiled preview is `../../output/pdf/main.pdf`.
+The compiled report is `main.pdf`.
 
-The primary table uses `../../experiments/selector100_t15_v14_20261028/paper_eval_cpu/report.json`.
-From the project root, reproduce it on CPU with:
+The primary table uses the committed five-fold result at `results/cv_cpu.json`.
+The three images in `figures/` are the exact outputs shown in the report.
+From the project root, rerun the experiment on CPU with:
 
 ```bash
-PYTHONPATH=src .venv/bin/python scripts/evaluate_selector_paper.py
+PYTHONPATH=src .venv/bin/python scripts/evaluate_selector_paper.py --output docs/report/results/cv_cpu.json
 ```
 
-From `docs/report`, compile the paper with the cached Tectonic binary:
+This command requires the local candidate bank, rankings, and cached CLIP
+features under `experiments/selector100_t15_v14_20261028/`. The committed
+result supports inspection and report compilation on another computer.
+
+From `docs/report`, compile the paper with Tectonic:
 
 ```bash
-../../.cache/latex-tools/tectonic -X compile main.tex --outdir ../../output/pdf
+tectonic -X compile main.tex --outdir .
 ```
 
 The evaluation uses five fixed source folds from
@@ -39,5 +44,4 @@ The report remains a draft. Its 100 sources informed model development,
 and its labels reflect one reviewer. Recorded times estimate historical
 generation work. Fresh sources, additional reviewers, and a timed editing
 pipeline would strengthen the evidence for generalization and compute savings.
-The three figure images are referenced from the experiment directory;
-package them with the TeX source for external submission.
+The figure assets and the full five-fold result are included with the report.
