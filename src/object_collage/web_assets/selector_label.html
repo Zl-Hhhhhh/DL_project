@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>候选偏好标注</title>
+<style>
+:root { color-scheme: light; font-family: system-ui, sans-serif; background: #f5f6f4; color: #202b2a; }
+* { box-sizing: border-box; } body { margin: 0; } header { background: #fff; border-bottom: 1px solid #d8dfdc; padding: 12px max(16px, calc((100vw - 1440px)/2)); display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+h1 { font-size: 18px; margin: 0 auto 0 0; } label { font-size: 13px; font-weight: 600; } input, select, button { font: inherit; } input[type=text], select { border: 1px solid #aebbb6; border-radius: 4px; padding: 7px; background: #fff; color: #202b2a; }
+main { max-width: 1440px; margin: auto; padding: 16px; } .status { min-height: 28px; color: #53635d; font-size: 13px; } .source { display: flex; align-items: center; gap: 12px; margin: 8px 0 16px; border-bottom: 1px solid #d8dfdc; padding-bottom: 14px; }
+.source img { width: 120px; height: 80px; object-fit: contain; background: #e8ece9; } .source strong { font-size: 13px; } .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.option { background: #fff; border: 1px solid #d7dfda; border-radius: 6px; padding: 12px; min-width: 0; } .option h2 { font-size: 15px; margin: 0 0 10px; } .option img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #e8ece9; display: block; }
+.checks { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-top: 12px; } .checks label { display: flex; gap: 5px; align-items: center; } .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 0; }
+.choices { display: flex; flex-wrap: wrap; gap: 6px; } .choices label { border: 1px solid #aebbb6; border-radius: 4px; background: #fff; padding: 9px 12px; cursor: pointer; white-space: nowrap; } .choices label:has(input:checked) { border-color: #116b50; background: #e5f4eb; } .choices input { margin-right: 5px; }
+button { border: 0; border-radius: 4px; background: #136b50; color: white; padding: 10px 18px; cursor: pointer; font-weight: 600; } button:disabled { opacity: .45; cursor: default; } .error { color: #a1352a; }
+@media (max-width: 700px) { .pair { grid-template-columns: 1fr; } .source img { width: 96px; } header { gap: 10px; } }
+</style>
+</head>
+<body>
+<header><h1>图片候选标注</h1><label>标注人 <input id="annotator" type="text" maxlength="64" value="reviewer"></label><label>数据集 <select id="split"><option value="train">训练</option><option value="val">验证</option><option value="test">测试</option></select></label><span id="progress"></span><a href="/">整组排序</a></header>
+<main><div id="status" class="status"></div><div id="work" hidden>
+<div class="source"><img id="source" alt="原图"><div><strong>原图</strong><div id="sourceInfo"></div><label>主体数量 <select id="subjectCount"><option value="" disabled selected>请选择</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label></div></div>
+<div class="pair"><section class="option"><h2>左图</h2><img id="leftImage" alt="左侧候选"><div class="checks"><label><input id="leftBad" type="checkbox">不可接受</label><label>主体身份 <select id="leftIdentity"><option value="unclear">不确定</option><option value="preserved">保留</option><option value="changed">改变</option></select></label></div></section>
+<section class="option"><h2>右图</h2><img id="rightImage" alt="右侧候选"><div class="checks"><label><input id="rightBad" type="checkbox">不可接受</label><label>主体身份 <select id="rightIdentity"><option value="unclear">不确定</option><option value="preserved">保留</option><option value="changed">改变</option></select></label></div></section></div>
+<div class="controls"><div class="choices"><label><input type="radio" name="preference" value="left">左图更好</label><label><input type="radio" name="preference" value="right">右图更好</label><label><input type="radio" name="preference" value="tie">相当</label><label><input type="radio" name="preference" value="neither">都不可接受</label></div><button id="save">提交并继续</button></div>
+</div></main>
+<script>
+const $ = id => document.getElementById(id); let task = null, refreshTimer = null;
+async function load() {
+  if (refreshTimer) clearTimeout(refreshTimer);
+  const name = $('annotator').value.trim(); if (!name) { $('status').textContent = '请填写标注人'; return; }
+  const response = await fetch(`/api/next?split=${encodeURIComponent($('split').value)}&annotator=${encodeURIComponent(name)}`);
+  const data = await response.json(); $('progress').textContent = `${data.done ?? 0} / ${data.total ?? 0}`;
+  if (!response.ok) { $('status').textContent = data.error; return; }
+  task = data.task; $('work').hidden = !task;
+  if (!task) {
+    $('status').textContent = data.generating ? '候选正在生成，完成后自动显示' : '当前数据集的候选已标完';
+    if (data.generating) refreshTimer = setTimeout(load, 15000);
+    return;
+  }
+  $('status').textContent = ''; $('source').src = task.source_url; $('leftImage').src = task.left_url; $('rightImage').src = task.right_url;
+  $('sourceInfo').textContent = `${task.source_id} · ${task.category}`;
+  $('subjectCount').value = sessionStorage.getItem(`subjectCount:${task.source_id}`) ?? '';
+  $('leftBad').checked = $('rightBad').checked = false; $('leftIdentity').value = $('rightIdentity').value = 'unclear';
+  document.querySelectorAll('input[name=preference]').forEach(el => el.checked = false);
+}
+async function save() {
+  if (!task) return; const chosen = document.querySelector('input[name=preference]:checked');
+  if (!chosen) { $('status').textContent = '请选择偏好'; return; }
+  if ($('subjectCount').value === '') { $('status').textContent = '请核对并选择主体数量'; return; }
+  const payload = { task_id: task.task_id, annotator: $('annotator').value.trim(), left: task.left, right: task.right,
+    preference: chosen.value, subject_count: Number($('subjectCount').value), subject_count_confirmed: true,
+    unacceptable: {left: $('leftBad').checked, right: $('rightBad').checked},
+    identity: {left: $('leftIdentity').value, right: $('rightIdentity').value} };
+  $('save').disabled = true;
+  try {
+    const response = await fetch('/api/label', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+    const data = await response.json(); if (!response.ok) { $('status').textContent = data.error; return; }
+    sessionStorage.setItem(`subjectCount:${task.source_id}`, $('subjectCount').value); await load();
+  } catch (error) { $('status').textContent = String(error); } finally { $('save').disabled = false; }
+}
+$('save').addEventListener('click', save); $('split').addEventListener('change', load); $('annotator').addEventListener('change', load); load();
+</script>
+</body></html>

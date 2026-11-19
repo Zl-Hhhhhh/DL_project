@@ -19,6 +19,7 @@ import yaml
 from PIL import Image, UnidentifiedImageError
 
 from .io import configure_local_runtime, letterbox, sha256, write_json
+from .external_pipeline import ExternalStageError
 from .render import TARGETS, generate_candidates
 from .segmentation import Segmenter
 from .presets import PRESETS, POSITIONS, catalog as preset_catalog, parameters as preset_parameters, render_preset
@@ -148,10 +149,12 @@ def validate_upload(payload, style_ids):
 
 
 class Editor:
-    def __init__(self, root):
+    def __init__(self, root, device=None):
         self.root = Path(root).resolve()
         configure_local_runtime(self.root)
         self.config = yaml.safe_load((self.root/'configs/dev.yaml').read_text(encoding='utf-8'))
+        if device:
+            self.config['device'] = device
         self.config['canvas_size'] = 1024
         self.config['border_margin'] *= 2
         self.palettes = {p['name']: p for p in self.config['palettes']}
@@ -247,7 +250,7 @@ class Editor:
             if detect_only:
                 detections = [{'confidence': item['confidence'], 'bbox_xyxy': item['bbox_xyxy']} for item in segmentation['instances']]
                 write_json(folder/'result.json', {'status': 'ok', 'mode': 'detection_preview', 'size':config['canvas_size'], 'detections': detections})
-                self.update(job_id, state='succeeded', stage='识别完成', source=f'/api/jobs/{job_id}/source.png', size=config['canvas_size'], detections=detections)
+                self.update(job_id, state='succeeded', stage='主体分析完成', source=f'/api/jobs/{job_id}/source.png', size=config['canvas_size'], detections=detections)
                 return
             overlay.save(folder/'detections.png')
             if mask is not None:
@@ -293,12 +296,15 @@ class Editor:
             record = {'source': 'source.png', 'mask': 'mask.png', 'source_sha256': sha256(folder/'source.png'), 'mask_sha256': sha256(folder/'mask.png'), 'output_sha256': sha256(folder/'output.png'), 'params': selected['params'], 'metrics': selected['metrics'], 'model': self.segmenter.provenance, 'segmentation': segmentation, 'canvas_mapping': mapping, 'mode': 'interactive', 'style': style, 'selection_method': 'fixed_rule', 'candidate_count': len(candidates)}
             write_json(folder/'params.json', record)
             self.finish(job_id, folder, options, {'status':'ok', **record}, segmentation['touches_content_border'])
-        except Exception:
+        except Exception as error:
             detail = traceback.format_exc()
             print(detail, flush=True)
             folder.mkdir(parents=True, exist_ok=True)
             (folder/'error.log').write_text(detail, encoding='utf-8')
-            self.update(job_id, state='failed', code='generation_error', message='生成遇到问题，请重新尝试；如果持续失败，请检查启动窗口中的错误信息。')
+            message = (f'{error.stage}失败，请查看启动窗口或 experiments/ui/{job_id}/{error.log_path.name}。'
+                       if isinstance(error, ExternalStageError) else
+                       '生成遇到问题，请重新尝试；如果持续失败，请检查启动窗口中的错误信息。')
+            self.update(job_id, state='failed', code='generation_error', message=message)
         finally:
             self.busy.release()
 
@@ -369,7 +375,7 @@ def handler_for(editor):
             if path.startswith('/assets/'):
                 filename = path.removeprefix('/assets/')
                 if filename == 'builtin-materials.jpg':
-                    preview = editor.root/'CollageRL/samples/materials/newspaper/preview.jpg'
+                    preview = editor.root/'third_party/repos/CollageRL/samples/materials/newspaper/preview.jpg'
                     if preview.is_file():
                         self.reply(200, preview.read_bytes(), 'image/jpeg')
                         return
@@ -433,8 +439,8 @@ class LocalServer(ThreadingHTTPServer):
         super().server_bind()
 
 
-def serve(root, port=7860):
-    editor = Editor(root)
+def serve(root, port=7860, device=None):
+    editor = Editor(root, device)
     server = LocalServer(('127.0.0.1', port), handler_for(editor))
     print(f'拼贴工作室已启动：http://127.0.0.1:{port}', flush=True)
     print('保持此窗口运行；按 Ctrl+C 停止。', flush=True)

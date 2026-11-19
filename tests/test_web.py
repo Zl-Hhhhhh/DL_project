@@ -72,7 +72,7 @@ def test_external_stages_use_requested_canvas_size(tmp_path, monkeypatch, size):
     from object_collage import external_pipeline
     calls = []
     def run_process(command, cwd, log_path, progress):
-        calls.append(command)
+        calls.append((command, cwd))
         if '--output_dir' in command:
             from pathlib import Path
             output = Path(command[command.index('--output_dir')+1])
@@ -82,10 +82,15 @@ def test_external_stages_use_requested_canvas_size(tmp_path, monkeypatch, size):
     monkeypatch.setattr(external_pipeline,'run_process',run_process)
     options = {'size':size,'style_data':b'style','prompt':'test','style_strength':1,'structure_strength':0.8}
     external_pipeline.stylize(tmp_path,tmp_path,options,lambda stage:None)
-    assert calls[0][calls[0].index('--size')+1]==str(size)
+    stylize_command, stylize_cwd = calls[0]
+    assert stylize_command[3] == str(tmp_path/'third_party/repos/InstantStyle/run_controlnet.py')
+    assert stylize_cwd == tmp_path
+    assert stylize_command[stylize_command.index('--size')+1]==str(size)
     Image.new('RGB',(size,size),'red').save(tmp_path/'output.png')
     record = external_pipeline.postprocess(tmp_path,tmp_path,[base64.b64decode(payload()['image'])],lambda stage:None)
-    assert calls[1][calls[1].index('--goal_resolution')+1]==str(size)
+    collage_command, collage_cwd = calls[1]
+    assert collage_cwd == tmp_path/'third_party/repos/CollageRL'
+    assert collage_command[collage_command.index('--goal_resolution')+1]==str(size)
     assert record['size']==size and Image.open(tmp_path/'output.png').size==(size,size)
 
 
@@ -101,7 +106,7 @@ def test_builtin_material_source_needs_no_upload_and_rejects_unknown_source():
 def test_builtin_library_checks_hashes_and_rejects_paths_outside_library(tmp_path):
     from object_collage.materials import load_builtin
     from object_collage.io import sha256
-    folder = tmp_path/'CollageRL/samples/materials/newspaper'
+    folder = tmp_path/'third_party/repos/CollageRL/samples/materials/newspaper'
     folder.mkdir(parents=True)
     photo = folder/'page.jpg'
     Image.new('RGB',(16,16),'red').save(photo)

@@ -1,4 +1,4 @@
-"""Run optional GPU stages in isolated processes so model memory is released."""
+"""Run optional model stages in isolated processes so memory is released."""
 import gc
 import shutil
 import subprocess
@@ -7,6 +7,13 @@ from pathlib import Path
 from PIL import Image
 
 from .io import letterbox, sha256, write_json
+
+
+class ExternalStageError(RuntimeError):
+    def __init__(self, log_path):
+        self.log_path = Path(log_path)
+        self.stage = {'stylize': '风格化', 'collagerl': 'CollageRL 材质重构'}.get(self.log_path.stem, '外部模型')
+        super().__init__(f'{self.stage} failed; see {self.log_path}')
 
 
 def run_process(command, cwd, log_path, progress):
@@ -19,7 +26,7 @@ def run_process(command, cwd, log_path, progress):
             if 'PROGRESS:' in line:
                 progress(line.partition('PROGRESS:')[2].strip())
         if process.wait() != 0:
-            raise RuntimeError(f'GPU stage failed; see {log_path}')
+            raise ExternalStageError(log_path)
 
 
 def release_models(editor):
@@ -28,11 +35,13 @@ def release_models(editor):
     import torch
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+    if hasattr(torch, 'npu') and torch.npu.is_available():
+        torch.npu.empty_cache()
 
 
 def stylize(root, folder, options, progress):
     (folder/'style.image').write_bytes(options['style_data'])
-    command = [sys.executable, '-X', 'utf8', str(root/'InstantStyle/run_controlnet.py'),
+    command = [sys.executable, '-X', 'utf8', str(root/'third_party/repos/InstantStyle/run_controlnet.py'),
         '--content', str(folder/'source.png'), '--style', str(folder/'style.image'),
         '--output', str(folder/'output.png'), '--size', str(options.get('size',1024)), '--prompt='+options['prompt'],
         '--style-strength', str(options['style_strength']), '--structure-strength', str(options['structure_strength'])]
@@ -63,7 +72,7 @@ def postprocess(root, folder, materials, progress):
         '--scale_order', '256', '128', '64', '--num_cycles', '4', '--min_scrap_size', '0', '--sensitivity', '3',
         '--output_dir', output_dir.as_posix(), '--no_video']
     progress('正在进行 CollageRL 材质重构')
-    run_process(command, root/'CollageRL', folder/'collagerl.log', progress)
+    run_process(command, root/'third_party/repos/CollageRL', folder/'collagerl.log', progress)
     shutil.copyfile(output_dir/'output.png', folder/'output.png')
     record = {'enabled':True, 'size':size, 'input':'base_output.png', 'input_sha256':sha256(folder/'base_output.png'),
               'output_sha256':sha256(folder/'output.png'), 'material_count':len(materials), 'command':command}

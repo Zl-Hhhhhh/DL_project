@@ -10,7 +10,7 @@ from object_collage.io import letterbox, sha256, validate_manifest, write_json
 from object_collage.pipeline import replay, run_batch
 from object_collage.render import generate_candidates, parameter_table, render
 from object_collage.report import build_report
-from object_collage.segmentation import choose_instance
+from object_collage.segmentation import choose_box_subject, choose_subject, count_box_subjects
 
 
 @pytest.fixture
@@ -52,14 +52,38 @@ def test_alpha_and_corrupt_input(tmp_path):
         letterbox(path)
 
 
-def test_selection_rules_and_explicit_override():
-    records = [dict(instance_id=0, category='person', confidence=0.9, mask_area=100), dict(instance_id=1, category='person', confidence=0.8, mask_area=300), dict(instance_id=2, category='cat', confidence=0.95, mask_area=900)]
-    assert choose_instance(records, 0.5, 'person')[0]['instance_id'] == 1
-    assert choose_instance(records, 0.5, 'person', 0)[0]['instance_id'] == 0
-    assert choose_instance(records, 0.99, 'person')[1] == 'low_confidence'
-    assert choose_instance(records, 0.5, 'dog')[1] == 'category_not_detected'
-    assert choose_instance(records, 0.5, 'person', 99)[1] == 'invalid_instance'
-    assert choose_instance([], 0.5)[1] == 'no_subject'
+def test_sam2_subject_selection_and_explicit_override():
+    records = [
+        dict(instance_id=0, confidence=.9, stability_score=.95, mask_area=100, touches_content_border=False),
+        dict(instance_id=1, confidence=.8, stability_score=.96, mask_area=300, touches_content_border=False),
+        dict(instance_id=2, confidence=.95, stability_score=.99, mask_area=900, touches_content_border=True),
+    ]
+    assert choose_subject(records, .5, 50, 500)[0]['instance_id'] == 1
+    assert choose_subject(records, .5, 50, 500, instance_id=0)[0]['instance_id'] == 0
+    assert choose_subject(records, .5, 50, 500, instance_id=2)[1] == 'subject_truncated'
+    assert choose_subject(records, .5, 50, 500, True, 2)[1] == 'ok'
+    assert choose_subject(records, .99, 50, 500)[1] == 'low_confidence'
+    assert choose_subject(records, .5, 50, 500, instance_id=99)[1] == 'invalid_instance'
+    assert choose_subject(records, .5, 1000, 2000)[1] == 'no_subject'
+    assert choose_subject([], .5, 50, 500)[1] == 'no_subject'
+
+
+def test_box_prompt_prefers_whole_living_subject_over_interior_parts():
+    records = [
+        dict(instance_id=0, category='person', confidence=.94, detection_confidence=.96,
+             mask_area=900, touches_content_border=True),
+        dict(instance_id=1, category='person', confidence=.98, detection_confidence=.81,
+             mask_area=180, touches_content_border=False),
+        dict(instance_id=2, category='chair', confidence=.92, detection_confidence=.94,
+             mask_area=1100, touches_content_border=False),
+    ]
+    assert choose_box_subject(records, .7, 50, 1500)['instance_id'] == 0
+    assert choose_box_subject(records[:2], .99, 50, 1500) is None
+    masks = {index: np.zeros((50, 50), dtype=bool) for index in range(3)}
+    masks[0][0:30, 0:30] = True
+    masks[1][5:15, 5:23] = True
+    masks[2][30:50, 0:50] = True
+    assert count_box_subjects(records, masks, records[0], .7, 50, 1500) == 1
 
 
 @pytest.mark.parametrize('composition', ['center', 'left', 'right'])

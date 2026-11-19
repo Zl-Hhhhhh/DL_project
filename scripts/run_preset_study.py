@@ -42,7 +42,7 @@ def main():
     parser.add_argument('--manifest',type=Path,default=ROOT/'data/photo120/manifest.json')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--size',type=int,choices=[512,1024],default=512)
-    parser.add_argument('--device',default='0',help='CUDA index, or explicitly cpu on HPC login nodes')
+    parser.add_argument('--device',default='npu:3',help='cpu, npu:<index>, or cuda:<index>')
     parser.add_argument('--write-previews',action='store_true')
     args = parser.parse_args()
     manifest = read_json(args.manifest)

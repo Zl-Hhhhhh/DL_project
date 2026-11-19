@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
 try {
-    $pythonExe = if ($Python) { $Python } else { Join-Path (Split-Path $PSScriptRoot -Parent) '.venv/Scripts/python.exe' }
+    $pythonExe = if ($Python) { $Python } else { Join-Path (Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent) '.venv/Scripts/python.exe' }
     if (-not (Test-Path -LiteralPath $pythonExe)) {
         throw 'Create the Python 3.10 environment first; see ENVIRONMENT.md.'
     }

@@ -1,5 +1,5 @@
 {
-  "directory": "DragonDiffusion",
+  "directory": "third_party/repos/DragonDiffusion",
   "repository": "https://github.com/MC-E/DragonDiffusion.git",
   "revision": "f9b5bdffcedfbc6337af258e64e40f3a5a836a88",
   "patch": "local-changes.patch",

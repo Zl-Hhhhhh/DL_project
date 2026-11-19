@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "references": {
+    "van_gogh_cypresses": {
+      "object_id": 437980,
+      "title": "Cypresses",
+      "artist": "Vincent van Gogh",
+      "object_url": "https://www.metmuseum.org/art/collection/search/437980",
+      "image_url": "https://images.metmuseum.org/CRDImages/ep/web-large/DP130999.jpg",
+      "rights": "The Met Open Access; public domain",
+      "sha256": "c99b08ce3ac261099f6e548f2b566889aeeb69ec1d9b9c9a9d4dbe011ebdaa59",
+      "size": [
+        495,
+        624
+      ]
+    },
+    "cezanne_sainte_victoire": {
+      "object_id": 435878,
+      "title": "Mont Sainte-Victoire",
+      "artist": "Paul Cézanne",
+      "object_url": "https://www.metmuseum.org/art/collection/search/435878",
+      "image_url": "https://images.metmuseum.org/CRDImages/ep/web-large/77J_045R2M.jpg",
+      "rights": "The Met Open Access; public domain",
+      "sha256": "5ecb5f37b5cdb1020700598cc82f995a1fed870fe71fc2c5af2eeb898d7d66ef",
+      "size": [
+        599,
+        355
+      ]
+    },
+    "hokusai_great_wave": {
+      "object_id": 36491,
+      "title": "Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as The Great Wave, from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei)",
+      "artist": "Katsushika Hokusai",
+      "object_url": "https://www.metmuseum.org/art/collection/search/36491",
+      "image_url": "https://images.metmuseum.org/CRDImages/as/web-large/DP141063.jpg",
+      "rights": "The Met Open Access; public domain",
+      "sha256": "f01508db940f3fae63a864b68ebdcf25f5b9734842ffdf81606648e4703e3ec3",
+      "size": [
+        600,
+        414
+      ]
+    },
+    "van_gogh_starry_night": {
+      "title": "The Starry Night",
+      "artist": "Vincent van Gogh",
+      "object_url": "https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+      "rights": "Wikimedia Commons; public domain",
+      "sha256": "a2759458dbc9cf1150ddc8b5d16453aba4790ed6fe826c29f4cf59471d07e629",
+      "size": [
+        1280,
+        1014
+      ]
+    },
+    "da_vinci_mona_lisa": {
+      "title": "Mona Lisa",
+      "artist": "Leonardo da Vinci",
+      "object_url": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1280px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+      "rights": "Wikimedia Commons; public domain",
+      "sha256": "8056105c343c16563f8afd4615b4653067e168ec41f344ef5b7e8aaea97463ad",
+      "size": [
+        1280,
+        1908
+      ]
+    },
+    "van_gogh_sunflowers": {
+      "title": "Sunflowers",
+      "artist": "Vincent van Gogh",
+      "object_url": "https://commons.wikimedia.org/wiki/File:Vincent_Willem_van_Gogh_127.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Vincent_Willem_van_Gogh_127.jpg/960px-Vincent_Willem_van_Gogh_127.jpg",
+      "rights": "Wikimedia Commons; public domain",
+      "sha256": "7fbd77dab7763beb3f222bcfb19434a5d1bf0bfb5da1c5b0557deb5c1fee0878",
+      "size": [
+        960,
+        1211
+      ]
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# CANN 8.5.0 on aarch64. Install SAM 2 separately with SAM2_BUILD_CUDA=0.
+torch==2.7.1
+torchvision==0.22.1
+torch-npu==2.7.1.post2
+numpy==1.26.4
+Pillow==11.1.0
+opencv-python-headless==4.10.0.84
+PyYAML==6.0.2
+pytest==8.3.5
+requests>=2.31,<3

@@ -14,7 +14,7 @@ import sys
 import time
 import traceback
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 os.environ['HF_HOME'] = str(ROOT / '.cache/huggingface')
 os.environ['HF_HUB_OFFLINE'] = '1'
 os.environ['TRANSFORMERS_OFFLINE'] = '1'
@@ -23,11 +23,13 @@ os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
 import numpy as np
 from PIL import Image, ImageOps
 import torch
+import torch_npu  # noqa: F401 - registers the Ascend backend
 import torch.nn.functional as F
 from diffusers import AutoencoderKL, DDIMScheduler
 from diffusers.models.modeling_utils import ModelMixin
 from transformers import CLIPTextModel, CLIPTokenizer, CLIPVisionModelWithProjection, CLIPImageProcessor
 from src.models.dragondiff import DragonPipeline
+from src.unet.attention_processor import AttnProcessor, IPAttnProcessor, Resampler
 from src.models.Sampler import Sampler
 from src.unet.unet_2d_condition import DragonUNet2DConditionModel
 from src.unet.estimator import MyUNet2DConditionModel
@@ -62,31 +64,67 @@ class LocalPipeline(DragonPipeline):
         self.image_proj_model = self.init_proj(self.precision)
         self.ip_id = str(weights / 'auxiliary/model/ip_sd15_64.bin')
         self.load_adapter(self.ip_id, 0.1)
-        self.pipe.unet.to('cpu')  # Adapter modules initially load onto CUDA upstream.
+        self.pipe.unet.to('cpu')
         for model in (unet, vae, text, self.pipe.estimator, self.image_encoder, self.image_proj_model):
             model.eval().requires_grad_(False)
         self.active = None
-        # Move only between complete forwards; the estimator remains on CUDA
+        # Move only between complete forwards; the estimator remains on NPU
         # through its latent-gradient calculations. No offload inside autograd.
         for name in ('unet', 'estimator'):
             getattr(self.pipe, name).register_forward_pre_hook(
                 lambda module, args, name=name: self.activate(name))
-        self.pipe.text_encoder.to('cuda')
+        self.pipe.text_encoder.to('npu:3')
+
+    def init_proj(self, precision):
+        return Resampler(
+            dim=self.pipe.unet.config.cross_attention_dim, depth=4,
+            dim_head=64, heads=12, num_queries=self.num_tokens,
+            embedding_dim=self.image_encoder.config.hidden_size,
+            output_dim=self.pipe.unet.config.cross_attention_dim, ff_mult=4,
+        ).to('npu:3', dtype=precision)
+
+    @torch.inference_mode()
+    def get_image_embeds(self, pil_image):
+        clip_image = self.clip_image_processor(images=[pil_image], return_tensors='pt').pixel_values.to('npu:3', dtype=self.precision)
+        conditional = self.image_encoder(clip_image, output_hidden_states=True).hidden_states[-2]
+        image_embeds = self.image_proj_model(conditional)
+        unconditional = self.image_encoder(torch.zeros_like(clip_image), output_hidden_states=True).hidden_states[-2]
+        return image_embeds, self.image_proj_model(unconditional).detach()
+
+    def load_adapter(self, model_path, scale=1.0):
+        attn_procs = {}
+        for name in self.pipe.unet.attn_processors:
+            cross_attention_dim = None if name.endswith('attn1.processor') else self.pipe.unet.config.cross_attention_dim
+            if name.startswith('mid_block'):
+                hidden_size = self.pipe.unet.config.block_out_channels[-1]
+            elif name.startswith('up_blocks'):
+                hidden_size = list(reversed(self.pipe.unet.config.block_out_channels))[int(name[len('up_blocks.')])]
+            elif name.startswith('down_blocks'):
+                hidden_size = self.pipe.unet.config.block_out_channels[int(name[len('down_blocks.')])]
+            else:
+                raise ValueError(f'Unexpected attention processor: {name}')
+            attn_procs[name] = (AttnProcessor() if cross_attention_dim is None else
+                IPAttnProcessor(hidden_size=hidden_size, cross_attention_dim=cross_attention_dim,
+                                scale=scale, num_tokens=self.num_tokens).to('npu:3', dtype=self.precision))
+        self.pipe.unet.set_attn_processor(attn_procs)
+        state = torch.load(model_path, map_location='cpu', weights_only=False)
+        self.image_proj_model.load_state_dict(state['image_proj'], strict=True)
+        torch.nn.ModuleList(self.pipe.unet.attn_processors.values()).load_state_dict(state['ip_adapter'], strict=True)
 
     def activate(self, name):
         if name == self.active:
             return
         if self.active:
             getattr(self.pipe, self.active).to('cpu')
-        torch.cuda.empty_cache()
-        getattr(self.pipe, name).to('cuda')
+        torch.npu.empty_cache()
+        getattr(self.pipe, name).to('npu:3')
         self.active = name
 
     def release_active(self):
         if self.active:
             getattr(self.pipe, self.active).to('cpu')
             self.active = None
-        torch.cuda.empty_cache()
+        torch.npu.empty_cache()
 
 
 def segment(image, box, weights):
@@ -94,10 +132,10 @@ def segment(image, box, weights):
     model = build_efficient_sam(
         encoder_patch_embed_dim=384, encoder_num_heads=6,
         checkpoint=str(weights / 'auxiliary/model/efficient_sam_vits.pt'),
-    ).eval().to('cuda')
-    value = torch.from_numpy(np.array(image)).permute(2, 0, 1).float().cuda() / 255
-    points = torch.tensor(box, device='cuda').reshape(1, 1, 2, 2).float()
-    labels = torch.tensor([2, 3], device='cuda').reshape(1, 1, 2)
+    ).eval().to('npu:3')
+    value = torch.from_numpy(np.array(image)).permute(2, 0, 1).float().to('npu:3') / 255
+    points = torch.tensor(box, device='npu:3').reshape(1, 1, 2, 2).float()
+    labels = torch.tensor([2, 3], device='npu:3').reshape(1, 1, 2)
     with torch.inference_mode():
         logits, scores = model(value[None], points, labels)
         best = scores[0, 0].argmax().item()
@@ -105,7 +143,7 @@ def segment(image, box, weights):
         score = float(scores[0, 0, best])
     del model, value, logits, scores
     gc.collect()
-    torch.cuda.empty_cache()
+    torch.npu.empty_cache()
     return mask, score
 
 
@@ -126,13 +164,14 @@ def main():
         parser.error('Output directory must not already exist')
     if not 1 <= args.steps <= 50:
         parser.error('steps must be in [1, 50]')
-    if not torch.cuda.is_available():
-        parser.error('CUDA is required')
+    if not torch.npu.is_available() or torch.npu.device_count() <= 3:
+        parser.error('Ascend NPU 3 is required')
+    torch.npu.set_device('npu:3')
     args.output.mkdir(parents=True)
     report = {'status': 'running', 'mode': 'move', 'algorithm': 'D+', 'size': [512, 512],
               'arguments': {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
               'python': sys.executable, 'torch': torch.__version__,
-              'gpu': torch.cuda.get_device_name(), 'offload': 'alternate-unet-estimator',
+              'device': 'npu:3', 'offload': 'alternate-unet-estimator',
               'attention': 'pytorch-sdpa', 'phases': {}}
     start = time.perf_counter()
     phase_start = start
@@ -140,22 +179,22 @@ def main():
 
     def end_phase(next_name):
         nonlocal phase_start, phase_name
-        torch.cuda.synchronize()
+        torch.npu.synchronize('npu:3')
         report['phases'][phase_name] = {
             'seconds': round(time.perf_counter() - phase_start, 3),
-            'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
-            'peak_reserved_bytes': torch.cuda.max_memory_reserved(),
+            'peak_allocated_bytes': torch.npu.max_memory_allocated('npu:3'),
+            'peak_reserved_bytes': torch.npu.max_memory_reserved('npu:3'),
         }
         print(f'PHASE {phase_name}: {report["phases"][phase_name]}', flush=True)
         phase_name = next_name
         phase_start = time.perf_counter()
-        torch.cuda.reset_peak_memory_stats()
+        torch.npu.reset_peak_memory_stats('npu:3')
 
     try:
         random.seed(args.seed)
         np.random.seed(args.seed)
         torch.manual_seed(args.seed)
-        torch.cuda.manual_seed_all(args.seed)
+        torch.npu.manual_seed_all(args.seed)
         torch.set_num_threads(4)
         image = ImageOps.fit(Image.open(args.image).convert('RGB'), (512, 512), method=Image.Resampling.LANCZOS)
         image.save(args.output / 'input.png')
@@ -175,18 +214,18 @@ def main():
         end_phase('model_loading')
         editor = LocalPipeline(args.weights, args.steps)
         end_phase('encoding')
-        editor.image_encoder.to('cuda')
+        editor.image_encoder.to('npu:3')
         emb_im, emb_uncond = editor.get_image_embeds(image.resize((256, 256)))
         # These encoders are never used again in this single-image process.
         del editor.image_encoder, editor.image_proj_model
         gc.collect()
-        torch.cuda.empty_cache()
-        editor.pipe.vae.to('cuda')
-        value = torch.from_numpy(np.array(image)).permute(2, 0, 1)[None].to('cuda', dtype=torch.float16) / 127.5 - 1
+        torch.npu.empty_cache()
+        editor.pipe.vae.to('npu:3')
+        value = torch.from_numpy(np.array(image)).permute(2, 0, 1)[None].to('npu:3', dtype=torch.float16) / 127.5 - 1
         latent = editor.image2latent(value)
         editor.pipe.vae.to('cpu')
         del value
-        torch.cuda.empty_cache()
+        torch.npu.empty_cache()
         end_phase('inversion')
         history = editor.ddim_inv(latent, args.prompt)
         latent_in = history[-1].squeeze(2)
@@ -194,8 +233,8 @@ def main():
         kwargs = process_move(mask_rgb, h=512, w=512, dx=args.dx, dy=args.dy,
                               scale=4, input_scale=1, resize_scale=1, up_scale=2,
                               up_ft_index=[1, 2], w_edit=4, w_content=6,
-                              w_contrast=0.2, w_inpaint=0.8, precision=torch.float16)
-        mask_latent = F.interpolate(torch.from_numpy(mask.copy())[None, None].float().cuda(), latent_in.shape[-2:]) > 0
+                              w_contrast=0.2, w_inpaint=0.8, precision=torch.float16, device='npu:3')
+        mask_latent = F.interpolate(torch.from_numpy(mask.copy())[None, None].float().to('npu:3'), latent_in.shape[-2:]) > 0
         shift = (int(args.dy / 8), int(args.dx / 8))
         mask_target = torch.roll(mask_latent, shift, (-2, -1)).to(latent_in.dtype)
         latent_in = latent_in * (1 - mask_target) + torch.roll(latent_in, shift, (-2, -1)) * mask_target
@@ -210,7 +249,7 @@ def main():
             raise ValueError('Non-finite edited latent')
         editor.release_active()
         end_phase('decoding')
-        editor.pipe.vae.to('cuda')
+        editor.pipe.vae.to('npu:3')
         result = editor.decode_latents(edited)[:, :, ::-1]
         if result.std() < 1:
             raise ValueError('Nearly constant output image')

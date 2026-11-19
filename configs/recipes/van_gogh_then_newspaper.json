@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "material_reconstruct", "material_id": "newspaper_a", "material_strength": 0.35},
+    {"op": "stylize", "reference_id": "van_gogh_starry_night", "style_strength": 1.0, "structure_strength": 0.8}
+  ]
+}

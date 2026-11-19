@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "references": {
+    "wood_table": {
+      "title": "Wood Table",
+      "asset": "wood_table",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_table/wood_table_diff_1k.jpg",
+      "md5": "45af5766b300f7e940ee8984c5fabd4f",
+      "asset_url": "https://polyhaven.com/a/wood_table",
+      "license": "CC0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "f81642ae141958feac6c5acac03e2aeb6cfe049dff301d0627e3c17f2dc5c7a5",
+      "size": [
+        1024,
+        1024
+      ],
+      "collagerl_sources": "four deterministic square quadrant crops of the diffuse map"
+    },
+    "rough_linen": {
+      "title": "Rough Linen",
+      "asset": "rough_linen",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_diff_1k.jpg",
+      "md5": "663db789fb075462b685c1f740e58930",
+      "asset_url": "https://polyhaven.com/a/rough_linen",
+      "license": "CC0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "04897d7611d7390ddf5b2c6f7273f448dfc48341fdbd1f4f207fa30b331d7f57",
+      "size": [
+        1024,
+        1026
+      ],
+      "collagerl_sources": "four deterministic square quadrant crops of the diffuse map"
+    },
+    "ceramic_tiles": {
+      "title": "Interior Tiles",
+      "asset": "interior_tiles",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/interior_tiles/interior_tiles_diff_1k.jpg",
+      "md5": "94ba3714450bb6bbe6a57c9a26e8dac5",
+      "asset_url": "https://polyhaven.com/a/interior_tiles",
+      "license": "CC0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "f267c4357e629f5ca2ab86f30da4fb0ae8c655a566cec6d81278df8d78dcca4a",
+      "size": [
+        1024,
+        1024
+      ],
+      "collagerl_sources": "four deterministic square quadrant crops of the diffuse map"
+    },
+    "silk_satin": {
+      "title": "Crepe Satin",
+      "asset": "crepe_satin",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/crepe_satin/crepe_satin_diff_1k.jpg",
+      "md5": "671816ccd82b5b619cd64bcb77cc9bfd",
+      "asset_url": "https://polyhaven.com/a/crepe_satin",
+      "license": "CC0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "403b5af633cb194117bcd63b3158497507290ee3fd7b7092fb5638d05426bb86",
+      "size": [
+        1024,
+        1042
+      ],
+      "collagerl_sources": "four deterministic square quadrant crops of the diffuse map"
+    },
+    "ceramic_iznik": {
+      "title": "Iznik Tile Panel",
+      "object_id": 454352,
+      "url": "https://images.metmuseum.org/CRDImages/is/web-large/LC-17_190_2088.jpg",
+      "source_sha256": "98fe6a194eecf5898dd93648b112b8b6eec5ced22313f022fcf0e7553142225d",
+      "crop_box": [
+        100,
+        35,
+        500,
+        435
+      ],
+      "asset_url": "https://www.metmuseum.org/art/collection/search/454352",
+      "license": "The Met Open Access; public domain",
+      "license_url": "https://www.metmuseum.org/hubs/open-access",
+      "sha256": "a416f2de42c50b45ee71f414e5e1a9941d43e74f2fef71cef2b31b16c921eefc",
+      "size": [
+        1024,
+        1024
+      ],
+      "collagerl_sources": "four deterministic square quadrant crops of the cropped artwork"
+    },
+    "silk_brocade": {
+      "title": "Rectangular Silk Fragment",
+      "object_id": 451100,
+      "url": "https://images.metmuseum.org/CRDImages/is/web-large/wb-52.20.20.JPG",
+      "source_sha256": "7bea137e7e8b656e416d25e2be6b9e676bb19849c83d1168cdae279d584bdf6b",
+      "crop_box": [
+        35,
+        110,
+        435,
+        510
+      ],
+      "asset_url": "https://www.metmuseum.org/art/collection/search/451100",
+      "license": "The Met Open Access; public domain",
+      "license_url": "https://www.metmuseum.org/hubs/open-access",
+      "sha256": "8a522d5f398d3c7ea84125c3f5f26b345756fba072809c5f48aa5ae8f14066ce",
+      "size": [
+        1024,
+        1024
+      ],
+      "collagerl_sources": "four deterministic square quadrant crops of the cropped artwork"
+    },
+    "ceramic_blue_white": {
+      "title": "Blue and white porcelain",
+      "sources": [
+        {
+          "file": "main-image.jpg",
+          "sha256": "00f25bbfe8fc3da76f045af1363ed011fb15d2c3739c29e03c666c8590da41f2",
+          "crops": [
+            [
+              300,
+              170,
+              600,
+              470
+            ],
+            [
+              600,
+              170,
+              900,
+              470
+            ],
+            [
+              300,
+              470,
+              600,
+              770
+            ],
+            [
+              600,
+              470,
+              900,
+              770
+            ]
+          ]
+        },
+        {
+          "file": "hk1147-c27cm-1-t2-calendar.jpg",
+          "sha256": "7741496b495305a4c3973fb8c08c1174e64db42de3706776ca5ecd81f0745f85",
+          "crops": [
+            [
+              650,
+              1400,
+              1350,
+              2100
+            ],
+            [
+              1250,
+              1450,
+              1950,
+              2150
+            ],
+            [
+              1900,
+              1400,
+              2600,
+              2100
+            ],
+            [
+              1050,
+              600,
+              1750,
+              1300
+            ]
+          ]
+        }
+      ],
+      "tiles": [
+        {
+          "file": "ceramic_blue_white_00.jpg",
+          "sha256": "6229b4d2d588185aa801ad902610f6e86df541dbae9ff4b620685be2518b80cf",
+          "source_file": "main-image.jpg",
+          "crop_box": [
+            300,
+            170,
+            600,
+            470
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_01.jpg",
+          "sha256": "5d9864373c2ad860f85d9fdffe04936679176dc4e7edafcc7bbcbf92bb8c8465",
+          "source_file": "main-image.jpg",
+          "crop_box": [
+            600,
+            170,
+            900,
+            470
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_02.jpg",
+          "sha256": "8e3d22ef6da6948445c57bad51683ce161fb85c79a7d572b6d869f7564e347b2",
+          "source_file": "main-image.jpg",
+          "crop_box": [
+            300,
+            470,
+            600,
+            770
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_03.jpg",
+          "sha256": "dce7e196bcc37890296c91872de9e479087957f4fb4a7930aca9fb4b59a01dff",
+          "source_file": "main-image.jpg",
+          "crop_box": [
+            600,
+            470,
+            900,
+            770
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_04.jpg",
+          "sha256": "2735f8ad79552069b87f1372704d0ca0e7aa754916f49148078f04e37fe001ec",
+          "source_file": "hk1147-c27cm-1-t2-calendar.jpg",
+          "crop_box": [
+            650,
+            1400,
+            1350,
+            2100
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_05.jpg",
+          "sha256": "254570f0f41a5d24ccc7833e22193e2f9d62d8d4fc97b3e9757d5bf0a766d6e1",
+          "source_file": "hk1147-c27cm-1-t2-calendar.jpg",
+          "crop_box": [
+            1250,
+            1450,
+            1950,
+            2150
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_06.jpg",
+          "sha256": "e9a3dbec98518a864601b4a0c571df57a6250aef2a64cdc4aedc8b4e37d9ba63",
+          "source_file": "hk1147-c27cm-1-t2-calendar.jpg",
+          "crop_box": [
+            1900,
+            1400,
+            2600,
+            2100
+          ]
+        },
+        {
+          "file": "ceramic_blue_white_07.jpg",
+          "sha256": "6ed81485452986643df88e14f4b819eae14b1452cd2eed1198745244aaf9fe82",
+          "source_file": "hk1147-c27cm-1-t2-calendar.jpg",
+          "crop_box": [
+            1050,
+            600,
+            1750,
+            1300
+          ]
+        }
+      ],
+      "license": "user-provided",
+      "asset_url": null,
+      "collagerl_sources": "eight fixed crops from two user-provided images"
+    },
+    "stained_glass": {
+      "title": "Colored stained glass",
+      "sources": [
+        {
+          "file": "21-23-1-20-6-51-24m.jpg",
+          "sha256": "9733cd70cfef2d1f75a78e30899b89799bb24652275a30f91ccc13ccff21db09",
+          "crops": [
+            [
+              0,
+              0,
+              288,
+              288
+            ],
+            [
+              288,
+              0,
+              576,
+              288
+            ],
+            [
+              0,
+              432,
+              288,
+              720
+            ],
+            [
+              288,
+              432,
+              576,
+              720
+            ]
+          ]
+        },
+        {
+          "file": "il_1080xN.5662307901_iqpd.avif",
+          "sha256": "3574a3eeadda4332c329219d8b6ca84321f68f9f2a9df363f25c0353aead251c",
+          "crops": [
+            [
+              300,
+              200,
+              550,
+              450
+            ],
+            [
+              550,
+              200,
+              800,
+              450
+            ],
+            [
+              300,
+              600,
+              550,
+              850
+            ],
+            [
+              550,
+              600,
+              800,
+              850
+            ]
+          ]
+        }
+      ],
+      "tiles": [
+        {
+          "file": "stained_glass_00.jpg",
+          "sha256": "757fe73cbd3aa4ed2dd84de45cc27fb7da4079b15ee5029a35ef87f95182d41f",
+          "source_file": "21-23-1-20-6-51-24m.jpg",
+          "crop_box": [
+            0,
+            0,
+            288,
+            288
+          ]
+        },
+        {
+          "file": "stained_glass_01.jpg",
+          "sha256": "adee7d55b830a6fd4deb4e64173d7349714940f83b0865a5b8f9a99f668320e1",
+          "source_file": "21-23-1-20-6-51-24m.jpg",
+          "crop_box": [
+            288,
+            0,
+            576,
+            288
+          ]
+        },
+        {
+          "file": "stained_glass_02.jpg",
+          "sha256": "959f53e74a6b0245d0dbdee184ed6c2d6d59fe671b08ab0bcc2c0f5c937743a9",
+          "source_file": "21-23-1-20-6-51-24m.jpg",
+          "crop_box": [
+            0,
+            432,
+            288,
+            720
+          ]
+        },
+        {
+          "file": "stained_glass_03.jpg",
+          "sha256": "5310588ddbae5c84c119896aeb35ad068a1b42c1e740693d55039e5abc3661ab",
+          "source_file": "21-23-1-20-6-51-24m.jpg",
+          "crop_box": [
+            288,
+            432,
+            576,
+            720
+          ]
+        },
+        {
+          "file": "stained_glass_04.jpg",
+          "sha256": "6134a28cfd2740b3a85e7dc1321c52eca6980fa5953d0159d2e5d53edb36ab24",
+          "source_file": "il_1080xN.5662307901_iqpd.avif",
+          "crop_box": [
+            300,
+            200,
+            550,
+            450
+          ]
+        },
+        {
+          "file": "stained_glass_05.jpg",
+          "sha256": "c66aebca34f0b0f8465b35378f2299be11411f3f57e3c4223fd8ed79da0b35c3",
+          "source_file": "il_1080xN.5662307901_iqpd.avif",
+          "crop_box": [
+            550,
+            200,
+            800,
+            450
+          ]
+        },
+        {
+          "file": "stained_glass_06.jpg",
+          "sha256": "bc6ce4b246955cf20619f4c0a82a8d9f4af464c6f504818380d636bae673a8f9",
+          "source_file": "il_1080xN.5662307901_iqpd.avif",
+          "crop_box": [
+            300,
+            600,
+            550,
+            850
+          ]
+        },
+        {
+          "file": "stained_glass_07.jpg",
+          "sha256": "a4329d4e3c6e52acb64478287e26e631cf4b4eb85554de143a6774d4c1c42887",
+          "source_file": "il_1080xN.5662307901_iqpd.avif",
+          "crop_box": [
+            550,
+            600,
+            800,
+            850
+          ]
+        }
+      ],
+      "license": "user-provided",
+      "asset_url": null,
+      "collagerl_sources": "eight fixed crops from two user-provided images"
+    }
+  }
+}

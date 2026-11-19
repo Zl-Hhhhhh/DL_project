@@ -40,10 +40,7 @@ def download(url, path):
     partial = path.with_suffix(path.suffix + '.part')
     for attempt in range(4):
         try:
-            # The regional endpoint serves the same official bucket without the
-            # long-lived proxy stalls observed on the global S3 endpoint.
-            endpoint=url.replace('https://s3.amazonaws.com/', 'https://s3.us-east-1.amazonaws.com/')
-            with requests.get(endpoint, stream=True, timeout=(15, 30)) as response:
+            with requests.get(url, stream=True, timeout=(15, 30)) as response:
                 response.raise_for_status()
                 with partial.open('wb') as stream:
                     for block in response.iter_content(32 * 1024):

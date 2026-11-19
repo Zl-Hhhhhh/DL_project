@@ -22,6 +22,8 @@ def validate_config(config):
         raise ValueError('v0.1 supports only 512px duotone; other planned styles are not implemented yet.')
     if not 0 < config['min_confidence'] <= config['confidence'] <= 1:
         raise ValueError('Invalid confidence thresholds')
+    if not 0 < config['sam2_min_area_fraction'] < config['sam2_max_area_fraction'] < 1:
+        raise ValueError('Invalid SAM 2 subject area limits')
     if config['candidates_per_task'] != 8 or config['max_attempts'] != 32:
         raise ValueError('The development protocol fixes 8 candidates and at most 32 attempts.')
     if not config['palettes']:
@@ -30,8 +32,22 @@ def validate_config(config):
 
 def environment_info():
     import torch
-    packages = {name: importlib.metadata.version(name) for name in ['torch', 'torchvision', 'ultralytics', 'numpy', 'Pillow', 'opencv-python', 'PyYAML']}
-    return {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'packages': packages, 'cuda_runtime': torch.version.cuda, 'cuda_available': torch.cuda.is_available(), 'gpu': torch.cuda.get_device_name(0) if torch.cuda.is_available() else None}
+    try:
+        import torch_npu  # noqa: F401 - registers the NPU device with PyTorch
+    except ImportError:
+        pass
+    packages = {}
+    for name in ['torch', 'torchvision', 'torch-npu', 'SAM-2', 'numpy', 'Pillow', 'opencv-python-headless', 'PyYAML']:
+        try:
+            packages[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            packages[name] = None
+    npu_available = hasattr(torch, 'npu') and torch.npu.is_available()
+    return {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(),
+            'packages': packages, 'cuda_runtime': torch.version.cuda,
+            'cuda_available': torch.cuda.is_available(), 'npu_available': npu_available,
+            'gpu': torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+            'npu_count': torch.npu.device_count() if npu_available else 0}
 
 
 def run_batch(root, config, manifest, run_dir, explicit_instance=None):

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "warm_film", "strength": 0.6},
+    {"op": "subject_pop", "strength": 0.7}
+  ]
+}

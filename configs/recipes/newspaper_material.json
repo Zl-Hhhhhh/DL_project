@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "material_reconstruct", "material_id": "newspaper_a"}
+  ]
+}

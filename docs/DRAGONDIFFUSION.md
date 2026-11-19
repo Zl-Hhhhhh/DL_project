@@ -1,10 +1,12 @@
 # DragonDiffusion 本地验证
 
-2026-09-18：在项目根 `.venv` 中验证 512×512 主体移动，未执行 InstantStyle 风格化。此入口用于独立实验，尚未接入网页。
+2026-09-18：以下为当时 Windows/CUDA 设备上的历史验证记录。当前 Ascend 设备的源码位于 `third_party/repos/DragonDiffusion/`，权重准备见 [本机 Ascend 说明](LOCAL_ASCEND.md)。本地入口已改为固定 NPU 3，并接入顺序执行器；尚未接入网页。
+
+2026-10-28 NPU 3 验证：使用 `experiments/sequence_npu3_smoke3/` 的 SAM2 掩码，对真实开发图执行 2 步移动，输出 `experiments/dragon_npu3_smoke1/output.png`；随后执行完整 50 步反演和 50 步编辑，模型输出在 `experiments/sequence_dragon_npu3_full1/step_01_dragon_move/dragon/output.png`，模型阶段耗时 42.355 秒，编辑峰值已分配 3,986,484,736 字节。修正顺序执行器的输出文件交接后，8 步配方 `experiments/sequence_dragon_npu3_smoke2/` 完整通过。50 步图像中手臂和衣物被明显改写，不能按成功退出码认定编辑质量合格；后文的其他质量观察属于历史 CUDA 设备。
 
 ## 模型与环境
 
-- 源码：[MC-E/DragonDiffusion](https://github.com/MC-E/DragonDiffusion)，commit `f9b5bdffcedfbc6337af258e64e40f3a5a836a88`，本地目录 `DragonDiffusion/`。
+- 源码：[MC-E/DragonDiffusion](https://github.com/MC-E/DragonDiffusion)，commit `f9b5bdffcedfbc6337af258e64e40f3a5a836a88`，当前本地目录 `third_party/repos/DragonDiffusion/`。
 - 权重：`models/dragondiffusion/`，17 个模型/配置文件，共 **5,064,527,543 字节**。已重新对照发布方 SHA-256 / Git blob 哈希验证，清单见 `MANIFEST.json` 和各目录 `SOURCE.json`。
 - SD 1.5 使用官方 FP16 safetensors；图像编码器、IP 适配器、EfficientSAM 和人脸关键点权重均已下载。
 - Python 3.10.16、PyTorch 2.5.1+cu121、Diffusers 0.29.2、Transformers 4.44.2、Accelerate 0.34.2；GPU 为 RTX 4060 Laptop 8 GB。
@@ -12,7 +14,7 @@
 
 ## 兼容与显存适配
 
-`DragonDiffusion/run_local.py` 使用本地权重并强制离线，沿用官方 DDIM 反演、特征梯度引导、注意力记忆库及 D+ 采样流程。
+`third_party/repos/DragonDiffusion/run_local.py` 使用本地权重并强制离线，沿用官方 DDIM 反演、特征梯度引导、注意力记忆库及 D+ 采样流程。下列显存策略是历史 CUDA 实现；当前本地覆盖补丁将执行设备和注意力缓存改为 NPU 3。
 
 1. 将旧版 Diffusers 导入路径适配到当前安装版本，通过现代模型加载器读取 FP16 variant。
 2. 用 PyTorch SDPA 替换自注意力中的 xFormers 运算，保留官方 Q/K/V 与记忆库逻辑；无需安装与旧 PyTorch 绑定的 xFormers。数值检查覆盖前向与 Q/K/V 梯度，对照显式 softmax 注意力计算通过，记录在 `experiments/dragondiffusion_check/sdpa-check.json`。
@@ -27,7 +29,7 @@
 在项目根目录运行，`--output` 必须指定一个尚不存在的目录：
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 DragonDiffusion/run_local.py --image experiments/dragondiffusion_check/official-move-001.png --steps 50 --dx 128 --output experiments/dragondiffusion_check/my-move
+.\.venv\Scripts\python.exe -X utf8 third_party/repos/DragonDiffusion/run_local.py --image experiments/dragondiffusion_check/official-move-001.png --steps 50 --dx 128 --output experiments/dragondiffusion_check/my-move
 ```
 
 默认先将输入居中裁成 512×512。默认框 `[95, 215, 225, 390]` 针对本次官方示例的前景杯子；其他图片需要设置 `--box x1 y1 x2 y2`，坐标以裁切后的 512 图像为准。也可传入 `--mask`，白色代表主体、黑色代表背景。自定义掩码须与裁切后的图像对齐。`--dx` / `--dy` 控制位移，`--prompt` 描述图像，默认随机种子为 42。

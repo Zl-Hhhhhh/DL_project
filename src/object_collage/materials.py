@@ -7,7 +7,7 @@ from .io import sha256
 
 
 def builtin_catalog(root):
-    folder = Path(root) / 'CollageRL/samples/materials/newspaper'
+    folder = Path(root) / 'third_party/repos/CollageRL/samples/materials/newspaper'
     manifest = folder / 'SOURCE.json'
     if not manifest.is_file():
         return folder, [], None

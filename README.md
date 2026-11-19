@@ -1,9 +1,24 @@
 # 对象感知的可控图像拼贴
 
-这是 `PROJECT_PLAN.md` 第一阶段的本地主项目：固定 YOLO 实例分割、等比补边、双色候选、构图规则选择和精确重放。网页输出可选 512×512 或 1024×1024（默认），冻结的开发批次仍使用 512×512。
-`CollageRL/` 与 `InstantStyle/` 是独立的外部参考仓库；主项目不导入它们。现在可在根目录 `.venv` 中运行参考仓库，基础环境和参考项目的依赖分别锁定，见 [共享环境说明](docs/SHARED_ENVIRONMENT.md)。
+主项目使用 SAM 2.1 自动分割、等比补边、双色候选、构图规则选择和精确重放。SAM2 自动选择主体，不提供类别识别；网页输出可选 512×512 或 1024×1024（默认），冻结的开发批次仍使用 512×512。
 
-## 本机启动
+当前本机为 Ascend 910/CANN 8.5.0，项目独立环境位于根目录 `.venv/`，默认计算设备固定为 `npu:3`。SAM2、CollageRL、InstantStyle 和 DragonDiffusion 的外部源码统一放在 `third_party/repos/`。安装和权重重建步骤见 [本机 Ascend 说明](docs/LOCAL_ASCEND.md)。
+
+`data/photo120` 的 80/20/20 原图已下载并校验。固定风格参考、材质组、候选生成、盲法偏好标注和图像条件排序器训练命令见 [选择器训练接口](docs/SELECTOR_PLAN.md)；目前尚无人工偏好标签，因此选择器网络尚未训练。当前顺序执行器可运行预设、构图、双色／原色拼贴、InstantStyle 风格化、CollageRL 材质重构和 DragonDiffusion 主体移动，并保存每一步的图像、掩码与参数。
+
+```bash
+source /usr/local/Ascend/cann/set_env.sh
+.venv/bin/python -m object_collage.cli doctor
+.venv/bin/python -m object_collage.cli run --image data/dev/images/000000315663.jpg --run-id my_sam2_run
+.venv/bin/python -m object_collage.cli sequence --image data/dev/images/000000283835.jpg --recipe configs/recipes/subject_color.json --run-id my_sequence
+.venv/bin/python -m object_collage.cli ui --port 7860
+```
+
+已有素材和扩散参考方法的历史 CUDA/Windows 验证记录在 [共享环境说明](docs/SHARED_ENVIRONMENT.md) 和 [DragonDiffusion 说明](docs/DRAGONDIFFUSION.md)。
+
+## 历史 Windows/CUDA 使用记录
+
+以下命令和实测说明保留原 Windows/CUDA 环境的记录；当前 Ascend 设备请使用上面的命令及本机说明。
 
 双击根目录的 `start-ui.cmd`，然后访问 http://127.0.0.1:7860。保持启动窗口运行，关闭窗口即停止服务。
 
@@ -51,7 +66,7 @@
 运行 ID 必须未使用。默认读取 `data/dev/manifest.json` 和 `configs/dev.yaml`。
 打开 `experiments/my_dev_run/index.html` 查看所有输入、掩码、候选、输出和失败；页面可离线打开，无需服务器。
 
-单张图、指定类别和构图：
+旧版单张图、指定类别和构图命令（当前 SAM2 不支持 `--category`）：
 
 ```powershell
 .\.venv\Scripts\object-collage.exe run --image D:/path/to/photo.jpg --category person --composition left
@@ -94,12 +109,12 @@ powershell -ExecutionPolicy Bypass -File setup.ps1 -Python D:/anaconda/envs/espn
 | `data/dev` | 冻结的开发来源、许可、类别与 dev 划分 |
 | `configs` | 模型、阈值、种子、候选和调色参数 |
 | `src/object_collage` | 分割、渲染、重放、日志及 CLI |
-| `models` | YOLO 权重与来源/哈希记录 |
+| `models` | SAM2 与扩散模型权重、来源及哈希记录 |
 | `experiments` | 每次独立运行及失败记录 |
 | `reports` | 可重建的汇总报告 |
 | `docs` | 部署实测、方法边界和数据说明 |
 
-当前提供具名颜色预设、双色效果、主体保色、可控海报构图及固定规则选择。切片、重复拼贴、DINOv2 特征缓存、偏好标注、排序训练、LaMa 摄影修复尚未实现，不把这些写成已部署能力。
+当前提供具名颜色预设、双色效果、主体保色、可控海报构图及固定规则选择。偏好标注与排序训练的入口已实现，仍需真实人工标签才能训练及评估；切片、重复拼贴、DINOv2 特征缓存、LaMa 摄影修复尚未实现。
 模型与公共数据的已有能力不代表本项目的研究贡献；开发集的自动约束通过也不等同于人工确认的掩码或美学质量。
 下一步使用固定样例核验掩码和预设效果，整理有出处的风格参考与人工偏好标签，再开展候选选择实验。
 

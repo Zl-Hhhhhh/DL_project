@@ -1,34 +1,28 @@
-# 参考仓库的本地适配
+# 外部仓库
 
-这里保存上游仓库的固定提交、当前 Python 修改补丁及新增辅助文件。原始克隆目录不纳入主项目 Git 仓库；模型、数据、推理结果和字节码缓存不在这些快照中。
+所有外部源码统一放在 `third_party/repos/`，不纳入主项目 Git。仓库版本见 `sources.json`；CollageRL、InstantStyle 和 DragonDiffusion 的本地补丁、增补文件分别保存在这里的同名目录。SAM2 使用固定上游提交，权重来源和哈希见 `models/sam2/SOURCE.json`。
 
-每个目录的 `SOURCE.json` 记录仓库地址、固定提交与辅助文件清单，`local-changes.patch` 记录已跟踪 Python 源码的本地修改，`overlay/` 保存新增文件。上游代码与权重保持各自的许可条款；本目录不为它们赋予新的开源许可证。
+在项目根目录重建源码（已经存在的目录无需重复克隆）：
 
-## 新机器重建
+```bash
+mkdir -p third_party/repos
+git clone https://github.com/northadventure/CollageRL.git third_party/repos/CollageRL
+git -C third_party/repos/CollageRL checkout ac9b066a398f3f352783d14cfb65332258de73a2
+git -C third_party/repos/CollageRL apply "$PWD/third_party/CollageRL/local-changes.patch"
+cp -a third_party/CollageRL/overlay/. third_party/repos/CollageRL/
 
-如果目标目录已经存在且完成适配，跳过克隆和应用补丁。这些命令用于主项目的新克隆，直接在项目根目录执行：
+git clone https://github.com/instantX-research/InstantStyle.git third_party/repos/InstantStyle
+git -C third_party/repos/InstantStyle checkout 6b40588e263c958653353ec24eb7eb990cfa3da7
+git -C third_party/repos/InstantStyle apply "$PWD/third_party/InstantStyle/local-changes.patch"
+cp -a third_party/InstantStyle/overlay/. third_party/repos/InstantStyle/
 
-```powershell
-git clone https://github.com/northadventure/CollageRL.git CollageRL
-git -C CollageRL checkout ac9b066a398f3f352783d14cfb65332258de73a2
-git -C CollageRL apply --check ../third_party/CollageRL/local-changes.patch
-git -C CollageRL apply ../third_party/CollageRL/local-changes.patch
-Copy-Item -Path .\third_party\CollageRL\overlay\* -Destination .\CollageRL -Recurse -Force
+git clone https://github.com/MC-E/DragonDiffusion.git third_party/repos/DragonDiffusion
+git -C third_party/repos/DragonDiffusion checkout f9b5bdffcedfbc6337af258e64e40f3a5a836a88
+git -C third_party/repos/DragonDiffusion apply "$PWD/third_party/DragonDiffusion/local-changes.patch"
+cp -a third_party/DragonDiffusion/overlay/. third_party/repos/DragonDiffusion/
 
-git clone https://github.com/instantX-research/InstantStyle.git InstantStyle
-git -C InstantStyle checkout 6b40588e263c958653353ec24eb7eb990cfa3da7
-git -C InstantStyle apply --check ../third_party/InstantStyle/local-changes.patch
-git -C InstantStyle apply ../third_party/InstantStyle/local-changes.patch
-Copy-Item -Path .\third_party\InstantStyle\overlay\* -Destination .\InstantStyle -Recurse -Force
-
-git clone https://github.com/MC-E/DragonDiffusion.git DragonDiffusion
-git -C DragonDiffusion checkout f9b5bdffcedfbc6337af258e64e40f3a5a836a88
-git -C DragonDiffusion apply --check ../third_party/DragonDiffusion/local-changes.patch
-git -C DragonDiffusion apply ../third_party/DragonDiffusion/local-changes.patch
-Copy-Item -Path .\third_party\DragonDiffusion\overlay\* -Destination .\DragonDiffusion -Recurse -Force
-
+git clone https://github.com/facebookresearch/sam2.git third_party/repos/SAM2
+git -C third_party/repos/SAM2 checkout 2b90b9f5ceec907a1c18123530e92e794ad901a4
 ```
 
-补丁只恢复代码适配，不安装环境或下载模型。后续按 [共享环境说明](../docs/SHARED_ENVIRONMENT.md)、[DragonDiffusion 说明](../docs/DRAGONDIFFUSION.md) 及现有准备脚本完成环境与资源准备。
-
-这些补丁在导出时通过了当前工作目录的反向应用检查。参考仓库继续修改后，需重新导出补丁并同步新增文件；主项目不会自动同步被忽略的克隆目录。
+环境和权重准备见 [本机 Ascend 说明](../docs/LOCAL_ASCEND.md)。参考仓库的原始代码、模型权重和数据仍遵循各自的许可。历史 CUDA/Windows 验证记录保留在 `docs/SHARED_ENVIRONMENT.md` 和 `docs/DRAGONDIFFUSION.md`。

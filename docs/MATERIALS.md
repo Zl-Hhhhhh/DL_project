@@ -4,20 +4,28 @@
 
 素材采用 CollageRL 官方 README 推荐的 [Newspaper and magazine images segmentation dataset](https://archive.ics.uci.edu/dataset/306/newspaper+and+magazine+images+segmentation+dataset)，包含 101 张俄文报纸、杂志扫描页。作者为 Aleksey Vilkin 和 Ilia Safonov，DOI 为 `10.24432/C5N60V`，UCI 标示许可为 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。这是仓库推荐的独立数据集。
 
-本地目录为 `CollageRL/samples/materials/newspaper/`。原包包含 75 张 JPG 及 26 张 BMP/TIFF 原图。为控制磁盘和推理内存占用，全部原图按比例缩小至最长边 1024，保存为质量 90 的 RGB JPEG；文件名以 `_m` 结尾的分割标注不用于拼贴，下载压缩包不作为运行依赖。`SOURCE.json` 记录来源、修改方式、下载文件 SHA-256、每张原图和处理后图片的 SHA-256。这里的下载哈希是本次下载的记录，不是发布方提供的签名。
+本地目录为 `third_party/repos/CollageRL/samples/materials/newspaper/`。原包包含 75 张 JPG 及 26 张 BMP/TIFF 原图。为控制磁盘和推理内存占用，全部原图按比例缩小至最长边 1024，保存为质量 90 的 RGB JPEG；文件名以 `_m` 结尾的分割标注不用于拼贴，下载压缩包不作为运行依赖。`SOURCE.json` 记录来源、修改方式、下载文件 SHA-256、每张原图和处理后图片的 SHA-256。这里的下载哈希是本次下载的记录，不是发布方提供的签名。
 
 界面预览显示实际预选的 8 张素材。选择由固定种子 42 决定，避免每次加载整个素材库；素材具体文件名和来源会写入任务目录的 `postprocess.json` 及 `result.json`。需要不同素材组合时可使用自定义上传。
 
-在项目根目录准备或校验素材：
+当前 Ascend 项目在根目录准备或校验素材：
 
-```powershell
-.\.venv\Scripts\python.exe -X utf8 scripts/prepare_materials.py
+```bash
+.venv/bin/python scripts/prepare_materials.py
 ```
 
-首次准备需要网络和 UnRAR；本机使用 `C:/Program Files/WinRAR/UnRAR.exe`，其他位置可通过 `--unrar` 指定。也可用 `--archive path/to/dataset_segmentation.rar` 复用已下载的官方 RAR，或传入 UCI 下载的 ZIP。素材已存在时脚本仅校验，不重复下载。默认下载的临时压缩包和提取文件在准备后自动清理；通过 `--archive` 指定的用户文件不会被删除。
+首次准备下载 UCI 官方 ZIP，并在项目 `.cache/tools/` 内安装固定版本的 ARM64 7-Zip；下载压缩包与二进制均按发布方 SHA-256 校验。也可用 `--archive path/to/dataset_segmentation.rar` 或官方 ZIP 复用已下载文件。素材已存在时脚本仅校验，不重复下载。默认下载的临时压缩包和提取文件在准备后自动清理；通过 `--archive` 指定的文件不会被删除。
 
-素材准备好后，正常生成无需 UnRAR 或联网。素材库不完整时，界面提示改用自定义上传；后端不会悄悄替换成其他图片。
+素材准备好后，正常生成无需 7-Zip 或联网。素材库不完整时，界面提示改用自定义上传；后端不会悄悄替换成其他图片。
 
-网页的“输出尺寸”同时作用于转换结果和材质重构，支持 512×512、1024×1024。CollageRL 本身没有统一的“强度百分比”；`scale_order` 影响处理的碎片尺度，`num_cycles` 控制每个窗口的拼贴轮数，素材图的内容和缩放也会影响外观。更多轮数用于继续细化，不等于视觉变化必然更强。目前界面中的“风格强度”属于 InstantStyle，尚未提供 CollageRL 强度滑块。若把重构结果与基础结果按比例混合，那是额外的图像合成操作。
+顺序执行器的新候选使用 `ceramic_blue_white` 与 `stained_glass` 材质 ID。前者从用户提供的青花瓷盘和花瓶照片取材，后者从两张彩色玻璃图片取材；每类各裁八张 512×512 的固定方形素材，避开照片中的展陈背景。准备脚本校验四张源文件的 SHA-256，并在 `data/material_refs/SOURCE.json` 记录裁剪坐标与素材哈希。AVIF 源图需要项目独立环境中的 `pillow-avif-plugin`。旧版材质参考继续保留，供旧配方和批次复现。准备或复核：
+
+```bash
+.venv/bin/python scripts/prepare_material_references.py
+```
+
+这些固定 ID 可由将来的选择器学习挑选；目前仍由配方明确指定。网页内置素材仍只使用 UCI 报纸库。
+
+网页的“输出尺寸”同时作用于转换结果和材质重构，支持 512×512、1024×1024。CollageRL 本身没有统一的“强度百分比”；`scale_order` 影响处理的碎片尺度，`num_cycles` 控制每个窗口的拼贴轮数，素材图的内容和缩放也会影响外观。更多轮数用于继续细化，不等于视觉变化必然更强。目前网页中的“风格强度”属于 InstantStyle，网页仍输出原始 CollageRL 重构。顺序执行器的 `material_strength` 是额外的全图合成比例，范围 0–1。新版候选对报纸、青花瓷、彩色玻璃分别用 0.45、0.65、0.60；旧配方未指定该字段时仍使用原始 CollageRL 输出，便于旧批次溯源。
 
 2026-09-17 本机验证：101 张素材安装后约 25.37 MiB，全部校验通过；临时下载压缩包已清理。30 项自动测试通过，桌面及 375/320 像素宽度界面检查通过。真实浏览器任务 `3ed7aec38c294bf69d349e071f43cad7` 使用 8 张内置素材完成拼接后处理，下载为 1024×1024 PNG，下载哈希和后处理输入/输出记录一致；浏览器无 JavaScript 错误。截图和验证记录位于 `.cache/ui-verification/builtin-materials-*`。

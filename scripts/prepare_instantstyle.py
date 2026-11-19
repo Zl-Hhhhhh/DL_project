@@ -8,7 +8,25 @@ os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
 os.environ['HF_HUB_DOWNLOAD_TIMEOUT'] = '120'
 
-from huggingface_hub import snapshot_download
+HF_ENDPOINT = os.environ.get('HF_ENDPOINT', 'https://huggingface.co').rstrip('/')
+
+
+def retry_get(url, **kwargs):
+    import requests
+    import time
+    for attempt in range(7):
+        response = None
+        try:
+            response = requests.get(url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as error:
+            status = response.status_code if response is not None else None
+            if response is not None:
+                response.close()
+            if attempt == 6 or status not in (None, 429, 500, 502, 503, 504):
+                raise error
+            time.sleep(min(60, 2 ** attempt))
 
 
 def ranged_download(repo, revision, folder, patterns):
@@ -17,9 +35,8 @@ def ranged_download(repo, revision, folder, patterns):
     import fnmatch
     import hashlib
     import json
-    import requests
-    response = requests.get(f'https://huggingface.co/api/models/{repo}/revision/{revision}?blobs=true', timeout=30)
-    response.raise_for_status()
+    import time
+    response = retry_get(f'{HF_ENDPOINT}/api/models/{repo}/revision/{revision}?blobs=true', timeout=30)
     files = [item for item in response.json()['siblings'] if any(fnmatch.fnmatch(item['rfilename'], pattern) for pattern in patterns)]
     def digest(path, lfs):
         value = hashlib.sha256() if lfs else hashlib.sha1()
@@ -38,7 +55,7 @@ def ranged_download(repo, revision, folder, patterns):
         if target.exists() and target.stat().st_size == size and digest(target, lfs) == expected:
             print(f'Verified existing {item["rfilename"]}', flush=True)
             continue
-        url = f'https://huggingface.co/{repo}/resolve/{revision}/{item["rfilename"]}'
+        url = f'{HF_ENDPOINT}/{repo}/resolve/{revision}/{item["rfilename"]}'
         partial = target.with_suffix(target.suffix+'.part')
         journal = target.with_suffix(target.suffix+'.chunks.json')
         chunk = 16*1024*1024
@@ -50,8 +67,7 @@ def ranged_download(repo, revision, folder, patterns):
             end = min(size, start+chunk)-1
             for attempt in range(3):
                 try:
-                    with requests.get(url, headers={'Range':f'bytes={start}-{end}'}, stream=True, timeout=(20,60)) as result:
-                        result.raise_for_status()
+                    with retry_get(url, headers={'Range':f'bytes={start}-{end}'}, stream=True, timeout=(20,60)) as result:
                         if result.status_code != 206 or result.headers.get('Content-Range') != f'bytes {start}-{end}/{size}':
                             raise ValueError('Server did not honor requested range')
                         count = 0
@@ -66,14 +82,15 @@ def ranged_download(repo, revision, folder, patterns):
                 except Exception:
                     if attempt == 2:
                         raise
+                    time.sleep(2 ** attempt)
         # Small text files may not support Range responses.
         if not lfs:
-            result = requests.get(url, timeout=60)
-            result.raise_for_status()
+            result = retry_get(url, timeout=60)
             partial.write_bytes(result.content)
         else:
             offsets = list(range(0, size, chunk))
-            with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+            workers = max(1, min(8, int(os.environ.get('MODEL_DOWNLOAD_WORKERS', '4'))))
+            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
                 futures = [pool.submit(fetch, start) for start in offsets if start not in done]
                 for future in concurrent.futures.as_completed(futures):
                     done.add(future.result())
@@ -116,6 +133,7 @@ if __name__ == '__main__':
         if args.ranged:
             ranged_download(repo, revision, folder, patterns)
         else:
+            from huggingface_hub import snapshot_download
             snapshot_download(repo, revision=revision, local_dir=folder, allow_patterns=patterns, max_workers=3)
         (folder/'SOURCE.json').write_text(json.dumps({'repository':repo,'revision':revision,'patterns':patterns},indent=2),encoding='utf-8')
     print('InstantStyle model downloads complete.', flush=True)

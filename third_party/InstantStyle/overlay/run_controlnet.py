@@ -1,4 +1,4 @@
-"""Content image + style image, original InstantStyle adapter with alternating GPU residency."""
+"""Content image + style image, original InstantStyle adapter on Ascend NPU 3."""
 import argparse
 import json
 import os
@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 os.environ['HF_HOME'] = str(ROOT/'.cache/huggingface')
 os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
 
@@ -28,6 +28,7 @@ def main():
     import cv2
     import numpy as np
     import torch
+    import torch_npu
     from PIL import Image, ImageOps
     from diffusers import ControlNetModel, StableDiffusionXLControlNetPipeline
     from ip_adapter import IPAdapterXL
@@ -40,17 +41,18 @@ def main():
             try:
                 return super().get_image_embeds(*values, **options)
             finally:
-                # This worker generates once. Drop the encoder after embedding
-                # instead of retaining another ~1.8 GB of weights in system RAM.
+                # This worker generates once; release the encoder after embedding.
                 self.image_encoder = None
                 import gc
                 gc.collect()
-                torch.cuda.empty_cache()
+                torch.npu.empty_cache()
 
     started = time.perf_counter()
-    if not torch.cuda.is_available():
-        raise RuntimeError('CUDA is required for this local configuration.')
-    torch.cuda.reset_peak_memory_stats()
+    device = 'npu:3'
+    if not torch.npu.is_available() or torch.npu.device_count() <= 3:
+        raise RuntimeError('Ascend NPU 3 is required for stylization.')
+    torch.npu.set_device(device)
+    torch.npu.reset_peak_memory_stats(device)
     folder = ROOT/'models/instantstyle'
     print('PROGRESS:正在加载风格化模型', flush=True)
     controlnet = ControlNetModel.from_pretrained(folder/'controlnet-canny', variant='fp16', torch_dtype=torch.float16, use_safetensors=True, local_files_only=True)
@@ -58,20 +60,7 @@ def main():
     pipe.enable_vae_tiling()
     pipe.enable_vae_slicing()
     pipe.set_progress_bar_config(disable=True)
-    adapter = OffloadedAdapter(pipe, str(folder/'ip-adapter/sdxl_models/image_encoder'), str(folder/'ip-adapter/sdxl_models/ip-adapter_sdxl.bin'), 'cpu', target_blocks=['up_blocks.0.attentions.1'])
-    adapter.device = 'cuda'
-    adapter.image_proj_model.to('cuda')
-    pipe.enable_model_cpu_offload()
-    # Standard pipeline offload keeps ControlNet resident during UNet. On 8 GB,
-    # explicitly release each model before the other runs, keeping residuals on GPU.
-    def before_control(module, inputs):
-        pipe.unet.to('cpu')
-        torch.cuda.empty_cache()
-    def after_control(module, inputs, output):
-        module.to('cpu')
-        torch.cuda.empty_cache()
-    controlnet.register_forward_pre_hook(before_control)
-    controlnet.register_forward_hook(after_control)
+    adapter = OffloadedAdapter(pipe, str(folder/'ip-adapter/sdxl_models/image_encoder'), str(folder/'ip-adapter/sdxl_models/ip-adapter_sdxl.bin'), device, target_blocks=['up_blocks.0.attentions.1'])
     content, _, mapping = letterbox(args.content, args.size)
     with Image.open(args.style) as image:
         style = ImageOps.exif_transpose(image).convert('RGB')
@@ -89,8 +78,8 @@ def main():
     record = {'python':sys.executable, 'mode':'stylize', 'content':str(args.content), 'style':str(args.style),
         'size':args.size, 'steps':args.steps, 'seed':args.seed, 'prompt':args.prompt,
         'style_strength':args.style_strength, 'structure_strength':args.structure_strength,
-        'seconds':time.perf_counter()-started, 'peak_cuda_allocated_bytes':torch.cuda.max_memory_allocated(),
-        'cpu_offload':'alternating_controlnet_unet', 'mapping':mapping}
+        'seconds':time.perf_counter()-started, 'device':device, 'peak_npu_allocated_bytes':torch.npu.max_memory_allocated(device),
+        'mapping':mapping}
     args.output.with_suffix('.json').write_text(json.dumps(record,ensure_ascii=False,indent=2),encoding='utf-8')
     print('PROGRESS:风格化完成',flush=True)
 

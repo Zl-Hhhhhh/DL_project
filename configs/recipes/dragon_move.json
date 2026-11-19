@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "dragon_move", "dx": 32, "dy": 0, "steps": 50, "prompt": "a person in a photograph"}
+  ]
+}

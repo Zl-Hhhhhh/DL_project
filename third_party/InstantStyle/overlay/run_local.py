@@ -6,14 +6,14 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 os.environ['HF_HOME'] = str(ROOT / '.cache/huggingface')
 os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
 
 
 def main():
     parser = argparse.ArgumentParser(description='Local InstantStyle SDXL inference (CPU offload for 8 GB GPUs).')
-    parser.add_argument('--image', type=Path, default=ROOT/'InstantStyle/assets/0.jpg')
+    parser.add_argument('--image', type=Path, default=ROOT/'third_party/repos/InstantStyle/assets/0.jpg')
     parser.add_argument('--prompt', default='a cat, masterpiece, best quality, high quality')
     parser.add_argument('--output', type=Path, default=ROOT/'experiments/instantstyle/result.png')
     parser.add_argument('--steps', type=int, default=20)

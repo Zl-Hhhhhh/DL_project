@@ -1,18 +1,22 @@
 [
   {
-    "directory": "CollageRL",
+    "directory": "repos/CollageRL",
     "repository": "https://github.com/northadventure/CollageRL.git",
     "revision": "ac9b066a398f3f352783d14cfb65332258de73a2",
     "patch": "local-changes.patch",
     "overlay_files": [
       "ENVIRONMENT.md",
       "infer.ps1",
+      "infer.py",
+      "env/draw.py",
+      "model/gan.py",
+      "module/gpu.py",
       "requirements-windows.txt",
       ".vscode/settings.json"
     ]
   },
   {
-    "directory": "InstantStyle",
+    "directory": "repos/InstantStyle",
     "repository": "https://github.com/instantX-research/InstantStyle.git",
     "revision": "6b40588e263c958653353ec24eb7eb990cfa3da7",
     "patch": "local-changes.patch",
@@ -23,13 +27,21 @@
     ]
   },
   {
-    "directory": "DragonDiffusion",
+    "directory": "repos/DragonDiffusion",
     "repository": "https://github.com/MC-E/DragonDiffusion.git",
     "revision": "f9b5bdffcedfbc6337af258e64e40f3a5a836a88",
     "patch": "local-changes.patch",
     "overlay_files": [
       "run_local.py",
-      "src/utils/image_conversion.py"
+      "src/utils/image_conversion.py",
+      "src/utils/utils.py",
+      "src/unet/attention_processor.py"
     ]
+  },
+  {
+    "directory": "repos/SAM2",
+    "repository": "https://github.com/facebookresearch/sam2.git",
+    "revision": "2b90b9f5ceec907a1c18123530e92e794ad901a4",
+    "checkpoint_manifest": "../models/sam2/SOURCE.json"
   }
 ]

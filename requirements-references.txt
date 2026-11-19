@@ -1,5 +1,6 @@
-# Additional packages for CollageRL and InstantStyle in the root Python 3.10 venv.
-# Install with constraints from requirements-lock.txt to preserve the main app.
+# Additional packages for CollageRL, InstantStyle and DragonDiffusion in the project venv.
+# On Ascend, install requirements-ascend.txt first.
+libarchive-c==5.3
 kornia==0.6.8
 imutils==0.5.4
 albumentations==1.1.0
@@ -12,3 +13,4 @@ accelerate==0.34.2
 huggingface-hub==0.25.2
 safetensors==0.4.5
 einops==0.8.0
+pillow-avif-plugin==1.6.0

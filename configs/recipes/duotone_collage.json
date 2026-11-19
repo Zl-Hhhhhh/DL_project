@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "steps": [
+    {"op": "duotone_collage", "composition": "center", "palette": "pine_mint", "scale": 0.5, "texture_fraction": 0.25}
+  ]
+}

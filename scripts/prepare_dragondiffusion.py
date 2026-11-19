@@ -10,9 +10,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
-
-from prepare_instantstyle import ranged_download
+from prepare_instantstyle import HF_ENDPOINT, ranged_download, retry_get
 
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / 'models' / 'dragondiffusion'
@@ -36,11 +34,10 @@ MODELS = [
 
 
 def metadata(repo, revision, patterns):
-    response = requests.get(
-        f'https://huggingface.co/api/models/{repo}/revision/{revision}?blobs=true',
+    response = retry_get(
+        f'{HF_ENDPOINT}/api/models/{repo}/revision/{revision}?blobs=true',
         timeout=60,
     )
-    response.raise_for_status()
     siblings = response.json()['siblings']
     for pattern in patterns:
         if not any(fnmatch.fnmatch(f['rfilename'], pattern) for f in siblings):

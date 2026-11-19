@@ -7,6 +7,8 @@ __pycache__/
 data/cache/
 data/dev/images/
 data/photo*/images/
+data/style_refs/*.jpg
+data/material_refs/*.jpg
 models/*.pt
 models/instantstyle/
 models/dragondiffusion/
@@ -18,6 +20,9 @@ reports/*.html
 /CollageRL/
 /InstantStyle/
 /DragonDiffusion/
+/SAM2/
+/third_party/repos/
+/models/sam2/*.part
 /output/
 /%SystemDrive%/
 /.aws/

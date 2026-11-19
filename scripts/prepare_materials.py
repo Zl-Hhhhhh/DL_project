@@ -2,20 +2,24 @@
 import argparse
 import hashlib
 import json
-import os
 import random
 import shutil
 import subprocess
+import tarfile
 import tempfile
 import urllib.request
 import zipfile
 from pathlib import Path, PureWindowsPath
 
 from PIL import Image, ImageOps
+import libarchive
 
 ROOT = Path(__file__).resolve().parents[1]
 DATASET_URL = 'https://archive.ics.uci.edu/dataset/306/newspaper+and+magazine+images+segmentation+dataset'
-DOWNLOAD_URL = 'https://archive.ics.uci.edu/ml/machine-learning-databases/00306/dataset_segmentation.rar'
+DOWNLOAD_URL = 'https://archive.ics.uci.edu/static/public/306/newspaper+and+magazine+images+segmentation+dataset.zip'
+SEVENZIP_URL = 'https://github.com/ip7z/7zip/releases/download/26.05/7z2605-linux-arm64.tar.xz'
+SEVENZIP_SHA256 = '0b71f6cfc34669b3bf69f2347efd3429f77020665003a13b9cdc53b784270421'
+SEVENZIP_BINARY_SHA256 = '17925963fe96bd0b441d1a139dbd2780b8894de0446fe2650ccdc65372167415'
 
 
 def digest(path):
@@ -26,12 +30,39 @@ def digest(path):
     return value.hexdigest()
 
 
+def ensure_sevenzip(path):
+    if path.is_file():
+        if path == ROOT/'.cache/tools/7zz' and digest(path) != SEVENZIP_BINARY_SHA256:
+            raise ValueError('Cached 7-Zip binary SHA-256 mismatch')
+        return path
+    if path != ROOT/'.cache/tools/7zz':
+        raise FileNotFoundError(f'7-Zip is missing: {path}')
+    path.parent.mkdir(parents=True, exist_ok=True)
+    bundle = path.parent/'7z2605-linux-arm64.tar.xz'
+    if not bundle.is_file():
+        with urllib.request.urlopen(SEVENZIP_URL, timeout=120) as source, bundle.open('wb') as output:
+            shutil.copyfileobj(source, output)
+    if digest(bundle) != SEVENZIP_SHA256:
+        raise ValueError('7-Zip download SHA-256 mismatch')
+    with tarfile.open(bundle, 'r:xz') as archive:
+        member = archive.getmember('7zz')
+        if not member.isfile():
+            raise ValueError('7-Zip archive does not contain a regular 7zz binary')
+        with archive.extractfile(member) as source, path.open('wb') as output:
+            shutil.copyfileobj(source, output)
+    path.chmod(0o755)
+    if digest(path) != SEVENZIP_BINARY_SHA256:
+        raise ValueError('Extracted 7-Zip binary SHA-256 mismatch')
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive', type=Path, help='Reuse an already downloaded official RAR or ZIP')
-    parser.add_argument('--unrar', default=shutil.which('unrar') or 'C:/Program Files/WinRAR/UnRAR.exe')
+    parser.add_argument('--sevenzip', type=Path, default=ROOT/'.cache/tools/7zz',
+                        help='7-Zip ARM64 binary for extracting the official RAR')
     args = parser.parse_args()
-    destination = ROOT/'CollageRL/samples/materials/newspaper'
+    destination = ROOT/'third_party/repos/CollageRL/samples/materials/newspaper'
     manifest = destination/'SOURCE.json'
     if manifest.exists():
         source = json.loads(manifest.read_text(encoding='utf-8'))
@@ -42,15 +73,13 @@ def main():
         return
     if destination.exists():
         raise FileExistsError('Incomplete library exists; inspect it before retrying.')
-    if not Path(args.unrar).is_file():
-        raise FileNotFoundError('UnRAR is required; pass --unrar with its executable path.')
     cache = ROOT/'.cache/materials-download'
     cache.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='prepare-', dir=cache) as temp:
         staging = Path(temp).resolve()
         if staging.parent != cache.resolve() or not staging.is_relative_to(ROOT):
             raise ValueError('Temporary directory must be within this project')
-        archive = args.archive.resolve() if args.archive else staging/'uci-306.rar'
+        archive = args.archive.resolve() if args.archive else staging/'uci-306.zip'
         if not args.archive:
             print('Downloading the official UCI dataset...', flush=True)
             with urllib.request.urlopen(DOWNLOAD_URL, timeout=120) as response, archive.open('wb') as output:
@@ -64,8 +93,8 @@ def main():
                 rar = staging/'dataset.rar'
                 with bundle.open(members[0]) as source, rar.open('wb') as output:
                     shutil.copyfileobj(source, output, 1024*1024)
-        encoding = 'utf-16-le' if os.name == 'nt' else 'utf-8'
-        names = subprocess.check_output([args.unrar,'lb','-scu','-p-',str(rar)]).decode(encoding).splitlines()
+        with libarchive.file_reader(str(rar)) as bundle:
+            names = [entry.pathname for entry in bundle]
         pages = [name for name in names if PureWindowsPath(name).suffix.lower() in {'.jpg','.jpeg','.bmp','.tif','.tiff','.png'}
                  and not PureWindowsPath(name).stem.lower().endswith('_m')]
         basenames = set()
@@ -78,7 +107,11 @@ def main():
             raise ValueError(f'Expected 101 source pages, found {len(pages)}')
         extracted = staging/'pages'
         extracted.mkdir()
-        subprocess.run([args.unrar,'e','-idq','-y','-o-','-p-',str(rar),*pages,str(extracted)+'\\'],check=True)
+        sevenzip = ensure_sevenzip(args.sevenzip.resolve())
+        subprocess.run([str(sevenzip), 'e', str(rar), f'-o{extracted}', '-y', '-bb0', *pages],
+                       check=True, stdout=subprocess.DEVNULL)
+        if {path.name.casefold() for path in extracted.iterdir()} != basenames:
+            raise ValueError('Extracted files do not match the 101 expected pages')
         package = staging/'library'
         package.mkdir()
         entries = []
@@ -113,7 +146,7 @@ def main():
             f'Source: {DATASET_URL}\n\nLicense: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/\n\n'
             'Derived copies: resized to maximum edge 1024, RGB JPEG quality 90. Segmentation masks omitted. '
             'Source and derivative hashes are recorded in SOURCE.json.\n',encoding='utf-8')
-        if package.resolve().parent != staging or destination.resolve().parent != (ROOT/'CollageRL/samples/materials').resolve():
+        if package.resolve().parent != staging or destination.resolve().parent != (ROOT/'third_party/repos/CollageRL/samples/materials').resolve():
             raise ValueError('Unexpected library move path')
         package.rename(destination)
     print(f'Installed {len(entries)} pages, {sum(p.stat().st_size for p in destination.iterdir())/1024**2:.2f} MiB.',flush=True)

@@ -87,8 +87,5 @@ def validate_manifest(manifest):
 def configure_local_runtime(root):
     # Keep library settings/cache in this workspace; do not edit user settings or require accounts.
     root = Path(root)
-    (root / '.cache/ultralytics').mkdir(parents=True, exist_ok=True)
     (root / '.cache/matplotlib').mkdir(parents=True, exist_ok=True)
-    os.environ.setdefault('YOLO_CONFIG_DIR', str(root / '.cache/ultralytics'))
     os.environ.setdefault('MPLCONFIGDIR', str(root / '.cache/matplotlib'))
-    os.environ.setdefault('YOLO_AUTOINSTALL', 'false')
