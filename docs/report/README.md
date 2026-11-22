@@ -5,7 +5,17 @@ paper samples. It reuses the course proposal's local `neurips_2026.sty`.
 The compiled report is `main.pdf`.
 
 The primary table uses the committed five-fold result at `results/cv_cpu.json`.
-The three images in `figures/` are the exact outputs shown in the report.
+The three COCO images in `figures/` are the exact images shown in the report.
+`figures/main_overview.pdf` is the main figure, with SVG and PNG copies for
+slides and previews. Its chart reads `results/cv_cpu.json`, and its source
+thumbnail uses the committed COCO image. Rebuild it with Python, Matplotlib,
+and Pillow from the project root:
+
+```bash
+python docs/report/build_main_figure.py
+```
+
+The PDF is included so a TeX build can use it directly.
 From the project root, rerun the experiment on CPU with:
 
 ```bash

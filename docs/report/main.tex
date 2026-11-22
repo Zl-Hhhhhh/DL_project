@@ -25,6 +25,15 @@ Styling, material reconstruction, and composition provide many ways to edit a ph
 
 I study these questions using a candidate bank I labeled. I count a decision as correct if the selector chooses an acceptable output or rejects a source with no acceptable outputs. For sources with at least one acceptable output, I also report how often the selector chooses my top-ranked edit. A recipe baseline learns preferences for operation sequences, references, and strengths across sources. I compare it with models that also receive image features. The evaluation covers recipes that completed generation, so its conclusions concern selection within this recorded bank.
 
+Figure~\ref{fig:overview} summarizes the selection workflows and the main findings.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/main_overview.pdf}
+\caption{Study overview. (a) Intended use, with preference score $r$, acceptability logit $a$, and threshold $t$. Pre-render selection renders the chosen recipe; rejection skips rendering. (b) Five-fold development results on 100 sources, evaluated using completed outputs. The shuffled result averages 30 permutations of source and subject features within each evaluation fold.}
+\label{fig:overview}
+\end{figure}
+
 \section{Related Work}
 NIMA predicts the distribution of aesthetic ratings for an image \citep{talebi2018nima}. Ren et al.~\citep{ren2017personalized} model how an individual's ratings differ from generic aesthetic scores. I use my rankings of edits to the same image to study whether a selector can identify a preferred edit before rendering it. CLIP supplies frozen image embeddings \citep{radford2021clip}. SAM 2, InstantStyle, and DragonDiffusion supply pretrained editing components \citep{ravi2024sam2,wang2024instantstyle,mou2024dragondiffusion}. I train a selector to choose an operation sequence and reference before rendering its output.
 
@@ -85,7 +94,6 @@ Rejection remains a weakness: all four policies select unacceptable outputs for 
 
 The 1,200 generation attempts total 27,393 recorded seconds, or 274 seconds per source on the local NPU pipeline. The fixed-position baseline selected 100 candidates totaling 2,986 recorded seconds and made 60 correct decisions. The pre-render selector chose 99 candidates totaling 2,992 recorded seconds, rejected one source, and made 67 correct decisions. At these different coverage levels, the selected candidates had similar total recorded generation times, and the learned selector made seven more correct decisions. Deployment timing must include feature extraction, retries, and the effects of subject routing and caches. The evaluation gives selectors advance knowledge of which recipes completed generation by filtering out 55 failures. This makes the cost comparison optimistic for deployment.
 
-\newpage
 These 100 sources informed method and loss development, so the results are development estimates. Each fold uses one seed, and the labels reflect only my preferences. The two subject-selection procedures also introduce variation across the bank. A stronger evaluation would use fresh sources, several training seeds, and additional annotators. Running the full editing pipeline would test segmentation quality, rejection, generation failures, and the quality achieved for a given time budget.
 
 \section{Conclusion}
